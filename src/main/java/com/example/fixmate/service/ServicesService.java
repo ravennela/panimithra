@@ -1,22 +1,28 @@
 package com.example.fixmate.service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Pageable;
 
+import com.example.fixmate.dtos.custom.ServiceSpecification;
 import com.example.fixmate.dtos.request.CreateServiceRequest;
 import com.example.fixmate.dtos.response.CreateServiceResponse;
 import com.example.fixmate.entities.Category;
 import com.example.fixmate.entities.ServiceAvailableDate;
+import com.example.fixmate.entities.ServiceEntity;
 import com.example.fixmate.entities.ServiceImage;
 import com.example.fixmate.entities.SubCategory;
+import com.example.fixmate.entities.User;
 import com.example.fixmate.repositories.CategoryRepository;
 import com.example.fixmate.repositories.ServiceRepository;
 import com.example.fixmate.repositories.SubCategoryRepository;
+import com.example.fixmate.repositories.UserRepository;
 
 @Service
 public class ServicesService {
@@ -28,9 +34,14 @@ public class ServicesService {
 
     @Autowired
     ServiceRepository serviceRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public CreateServiceResponse createService(CreateServiceRequest request, String categoryId, String subCategoryId) {
-
+        User employee = userRepository.findById(request.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            throw new RuntimeException("User Not Found for this Service");
+        }
         Category category = categoryRepository.findById(categoryId).orElse(null);
         if (category == null) {
             throw new RuntimeException("No Category Found");
@@ -42,10 +53,10 @@ public class ServicesService {
             }
         }
 
-        com.example.fixmate.entities.Service service = new com.example.fixmate.entities.Service();
+        ServiceEntity service = new ServiceEntity();
         service.setAddress(request.getAddress());
         service.setDescription(request.getDescription());
-
+        service.setEmployee(employee);
         service.setLatitude(request.getLatitude());
         service.setLongitude(request.getLongitude());
         service.setDuration(request.getDuration());
@@ -73,6 +84,7 @@ public class ServicesService {
                     return img;
                 })
                 .collect(Collectors.toList());
+
         service.setAvailableDates(availableDates);
         service.setImages(images);
         serviceRepository.save(service);
@@ -83,4 +95,24 @@ public class ServicesService {
         return response;
     }
 
+    public Page<ServiceEntity> getAllService(int page, int size, String sortBy, String direction) {
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return serviceRepository.findAll(pageable);
+    }
+
+    public Page<ServiceEntity> searchServices(
+            String categoryId,
+            String serviceName,
+            Double minPrice,
+            Double maxPrice,
+            Double minRating,
+            Pageable pageable, String categoryName, String subCategoryName) {
+        Specification<ServiceEntity> spec = ServiceSpecification.filter(categoryId, serviceName, minPrice, maxPrice,
+                minRating, categoryName, subCategoryName);
+
+        return serviceRepository.findAll(spec, pageable);
+    }
 }

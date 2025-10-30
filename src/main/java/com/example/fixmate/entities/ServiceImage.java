@@ -22,7 +22,7 @@ public class ServiceImage {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
+    private ServiceEntity service;
 
     public String getId() {
         return id;
@@ -40,11 +40,11 @@ public class ServiceImage {
         this.imageUrl = imageUrl;
     }
 
-    public Service getService() {
+    public ServiceEntity getService() {
         return service;
     }
 
-    public void setService(Service service) {
+    public void setService(ServiceEntity service) {
         this.service = service;
     }
 

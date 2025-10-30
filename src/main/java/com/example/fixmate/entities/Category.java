@@ -3,10 +3,11 @@ package com.example.fixmate.entities;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -33,9 +34,10 @@ public class Category {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubCategory> subCategories = new ArrayList<>();
-
+    @JsonManagedReference
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Service> services = new ArrayList<>();
+    @JsonIgnore
+    private List<ServiceEntity> services = new ArrayList<>();
 
     public String getId() {
         return id;
@@ -101,11 +103,11 @@ public class Category {
         this.subCategories = subCategories;
     }
 
-    public List<Service> getServices() {
+    public List<ServiceEntity> getServices() {
         return services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<ServiceEntity> services) {
         this.services = services;
     }
 

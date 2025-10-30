@@ -58,6 +58,42 @@ public class User {
     private String role;
 
     private String status;
+    private String alternateNumber;
+    private String primaryService;
+    private int experiance;
+    private String shortBio;
+
+    public String getAlternateNumber() {
+        return alternateNumber;
+    }
+
+    public void setAlternateNumber(String alternateNumber) {
+        this.alternateNumber = alternateNumber;
+    }
+
+    public String getPrimaryService() {
+        return primaryService;
+    }
+
+    public void setPrimaryService(String primaryService) {
+        this.primaryService = primaryService;
+    }
+
+    public int getExperiance() {
+        return experiance;
+    }
+
+    public void setExperiance(int experiance) {
+        this.experiance = experiance;
+    }
+
+    public String getShortBio() {
+        return shortBio;
+    }
+
+    public void setShortBio(String shortBio) {
+        this.shortBio = shortBio;
+    }
 
     private String deviceToken;
 
@@ -67,7 +103,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Service> services = new ArrayList<>();
+    private List<ServiceEntity> services = new ArrayList<>();
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bookings> customerBookings = new ArrayList<>();
@@ -236,11 +272,11 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public List<Service> getServices() {
+    public List<ServiceEntity> getServices() {
         return services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<ServiceEntity> services) {
         this.services = services;
     }
 

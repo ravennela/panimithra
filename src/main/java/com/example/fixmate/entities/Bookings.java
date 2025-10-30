@@ -44,7 +44,7 @@ public class Bookings {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id")
-    private Service service;
+    private ServiceEntity service;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

@@ -35,6 +35,42 @@ public class CreateUserRequest {
     private String status;
 
     private String deviceToken;
+    private String alternateMobileNumber;
+    private String primaryService;
+    private int experiance;
+    private String shortBio;
+
+    public String getAlternateMobileNumber() {
+        return alternateMobileNumber;
+    }
+
+    public void setAlternateMobileNumber(String alternateMobileNumber) {
+        this.alternateMobileNumber = alternateMobileNumber;
+    }
+
+    public String getPrimaryService() {
+        return primaryService;
+    }
+
+    public void setPrimaryService(String primaryService) {
+        this.primaryService = primaryService;
+    }
+
+    public int getExperiance() {
+        return experiance;
+    }
+
+    public void setExperiance(int experiance) {
+        this.experiance = experiance;
+    }
+
+    public String getShortBio() {
+        return shortBio;
+    }
+
+    public void setShortBio(String shortBio) {
+        this.shortBio = shortBio;
+    }
 
     public String getName() {
         return name;

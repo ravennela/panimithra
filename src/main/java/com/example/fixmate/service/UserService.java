@@ -68,6 +68,10 @@ public class UserService {
         user.setRole(request.getRole());
         user.setStatus(request.getStatus());
         user.setDeviceToken(request.getDeviceToken());
+        user.setAlternateNumber(request.getAlternateMobileNumber());
+        user.setPrimaryService(request.getPrimaryService());
+        user.setExperiance(request.getExperiance());
+        user.setShortBio(request.getShortBio());
         userRepository.save(user);
 
         if ("EMPLOYEE".equals(request.getRole())) {

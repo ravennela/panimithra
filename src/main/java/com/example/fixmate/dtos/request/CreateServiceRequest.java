@@ -2,9 +2,6 @@ package com.example.fixmate.dtos.request;
 
 import java.util.List;
 
-import com.example.fixmate.entities.ServiceAvailableDate;
-import com.example.fixmate.entities.ServiceImage;
-
 public class CreateServiceRequest {
     private String name;
 
@@ -19,6 +16,15 @@ public class CreateServiceRequest {
     private double latitude;
 
     private double longitude;
+    private String employeeId;
+
+    public String getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
+    }
 
     private List<ServiveAvailableDateRequest> availableDates;
 

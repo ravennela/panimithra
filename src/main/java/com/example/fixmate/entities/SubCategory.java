@@ -103,15 +103,15 @@ public class SubCategory {
         this.category = category;
     }
 
-    public List<Service> getServices() {
+    public List<ServiceEntity> getServices() {
         return services;
     }
 
-    public void setServices(List<Service> services) {
+    public void setServices(List<ServiceEntity> services) {
         this.services = services;
     }
 
     @OneToMany(mappedBy = "subCategory", cascade = CascadeType.PERSIST, orphanRemoval = true)
-    private List<Service> services = new ArrayList<>();
+    private List<ServiceEntity> services = new ArrayList<>();
 
 }
