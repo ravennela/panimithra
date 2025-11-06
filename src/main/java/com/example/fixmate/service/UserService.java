@@ -4,15 +4,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.example.fixmate.dtos.custom.UserSpecifications;
 import com.example.fixmate.dtos.request.AuthRequest;
 import com.example.fixmate.dtos.request.CreateUserRequest;
 import com.example.fixmate.dtos.response.AuthResponse;
 import com.example.fixmate.dtos.response.CreateUserResponse;
+import com.example.fixmate.dtos.response.GetUserResponse;
 import com.example.fixmate.entities.Subscription;
 import com.example.fixmate.entities.SubscriptionPlan;
 import com.example.fixmate.entities.User;
@@ -99,8 +104,8 @@ public class UserService {
         return response;
     }
 
-    public AuthResponse login(AuthRequest request) {
-
+    public GetUserResponse login(AuthRequest request) {
+        User user = userRepository.findByEmailId(request.getUsername());
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -110,12 +115,32 @@ public class UserService {
             throw new UnAutherizedException("Invalid Credentials");
         }
 
-        User user = userRepository.findByEmailId(request.getUsername());
         String token = jwtUtil.generateToken(request.getUsername(), user.getRole());
-        AuthResponse response = new AuthResponse();
+        // AuthResponse response = new AuthResponse();
+        GetUserResponse response = new GetUserResponse();
+        response.setUserId(user.getId());
         response.setToken(token);
-        response.setUser(user);
+        response.setUserName(user.getName());
+        response.setContactNumber(user.getContactNumber());
+        response.setEmailId(user.getEmailId());
+        response.setAddress(user.getAddress());
+        response.setLatitude(user.getLatitude());
+        response.setLongitude(user.getLongitude());
+        response.setProfileImageUrl(user.getProfileImageUrl());
+        response.setGender(user.getGender());
+        response.setDob(user.getDateOfBirth());
+        response.setCity(user.getCity());
+        response.setState(user.getState());
+        response.setPinCode(user.getPincode());
+        response.setRole(user.getRole());
+        response.setStatus(user.getStatus());
+        response.setAlternateNumber(user.getAlternateNumber());
+        response.setPrimaryService(user.getPrimaryService());
         return response;
     }
 
+    public Page<User> fetchUsers(int page, String name, String status, String role, Pageable pageable) {
+        Specification<User> spec = UserSpecifications.filter(name, status, role);
+        return userRepository.findAll(spec, pageable);
+    }
 }

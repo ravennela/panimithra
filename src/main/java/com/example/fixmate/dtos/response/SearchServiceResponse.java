@@ -15,7 +15,6 @@ public record SearchServiceResponse(
         double longitude,
         int duration,
         String serviceId,
-        List<Bookings> bookings,
         String categoryName,
         String categoryDescription,
         String subCategoryName,
@@ -29,7 +28,7 @@ public record SearchServiceResponse(
         String employeeId = k.getEmployee() != null ? k.getEmployee().getId() : null;
         return new SearchServiceResponse(k.getName(), k.getDescription(), k.getStatus(), k.getAddress(),
                 k.getLatitude(), k.getLongitude(), k.getDuration(), k.getId(),
-                k.getBookings(), k.getCategory().getCategoryName(), k.getCategory().getDescription(),
+                k.getCategory().getCategoryName(), k.getCategory().getDescription(),
                 k.getSubCategory().getSubCategoryName(), k.getSubCategory().getDescription(),
                 calculateAverageRating(k.getReviews()), k.getPrice(), employeeName,
                 employeeId);

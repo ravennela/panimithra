@@ -6,6 +6,15 @@ public class CreateReviewRequest {
     private String customerId;
     private String employeeid;
     private String serviceId;
+    private String bookingId;
+
+    public String getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(String bookingId) {
+        this.bookingId = bookingId;
+    }
 
     public String getComment() {
         return comment;

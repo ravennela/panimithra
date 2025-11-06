@@ -59,7 +59,7 @@ public class User {
 
     private String status;
     private String alternateNumber;
-    private String primaryService;
+    private String primaryService;  
     private int experiance;
     private String shortBio;
 

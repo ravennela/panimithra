@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.example.fixmate.dtos.request.CreateReviewRequest;
 import com.example.fixmate.dtos.response.CreateReviewResponse;
+import com.example.fixmate.entities.Bookings;
 import com.example.fixmate.entities.Review;
 import com.example.fixmate.entities.ServiceEntity;
 import com.example.fixmate.entities.User;
+import com.example.fixmate.repositories.BookingRepository;
 import com.example.fixmate.repositories.ReviewRepository;
 import com.example.fixmate.repositories.ServiceRepository;
 import com.example.fixmate.repositories.UserRepository;
@@ -20,9 +22,14 @@ public class ReviewService {
     ServiceRepository repository;
     @Autowired
     ReviewRepository reviewRepository;
+    @Autowired
+    BookingRepository bookingRepository;
 
     public CreateReviewResponse createReview(CreateReviewRequest request) {
-
+        Bookings bookings = bookingRepository.findById(request.getBookingId()).orElse(null);
+        if (bookings == null) {
+            throw new RuntimeException("No Bookings Found with this Id");
+        }
         User customer = userRepository.findById(request.getCustomerId()).orElse(null);
         if (customer == null) {
             throw new RuntimeException("Customer Not Found");
@@ -36,11 +43,17 @@ public class ReviewService {
             throw new RuntimeException("Service Not Found");
         }
 
+        // if (reviewRepository.existsByCustomer_IdAndServiceId(request.getCustomerId(),
+        // request.getServiceId())) {
+        // throw new IllegalArgumentException("You have already reviewed this
+        // service.");
+        // }
         Review review = new Review();
         review.setComment(request.getComment());
         review.setRating(request.getRating());
         review.setCustomer(customer);
         review.setEmployee(employee);
+        review.setBookings(bookings);
         review.setService(sEntity);
         reviewRepository.save(review);
         CreateReviewResponse response = new CreateReviewResponse();

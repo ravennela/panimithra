@@ -13,7 +13,9 @@ import org.springframework.data.domain.Pageable;
 import com.example.fixmate.dtos.custom.ServiceSpecification;
 import com.example.fixmate.dtos.request.CreateServiceRequest;
 import com.example.fixmate.dtos.response.CreateServiceResponse;
+import com.example.fixmate.dtos.response.ServiceByIdResponse;
 import com.example.fixmate.entities.Category;
+import com.example.fixmate.entities.Review;
 import com.example.fixmate.entities.ServiceAvailableDate;
 import com.example.fixmate.entities.ServiceEntity;
 import com.example.fixmate.entities.ServiceImage;
@@ -114,5 +116,33 @@ public class ServicesService {
                 minRating, categoryName, subCategoryName);
 
         return serviceRepository.findAll(spec, pageable);
+    }
+
+    public ServiceByIdResponse fetchService(String serviceId) {
+        ServiceEntity service = serviceRepository.findById(serviceId).orElse(null);
+        if (service == null) {
+            throw new RuntimeException("No Service Found");
+        }
+
+        ServiceByIdResponse response = new ServiceByIdResponse();
+        response.setDescription(service.getDescription());
+        response.setPrice(service.getPrice());
+        response.setEmployeeExperiance(service.getEmployee().getExperiance());
+        response.setEmployeeName(service.getEmployee().getName());
+        response.setServiceId(service.getId());
+        response.setServiceName(service.getName());
+        response.setReviews(service.getReviews());
+        response.setEmployeeId(service.getEmployee().getId());
+        response.setAvaragerating(calculateAverageRating(service.getReviews()));
+        return response;
+    }
+
+    public static double calculateAverageRating(List<Review> reviews) {
+        if (reviews == null || reviews.isEmpty())
+            return 0.0;
+        return reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
     }
 }

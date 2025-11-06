@@ -1,45 +1,42 @@
 package com.example.fixmate.controllers;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.fixmate.dtos.custom.ApiErrorDto;
-import com.example.fixmate.dtos.custom.UserSpecifications;
-import com.example.fixmate.dtos.request.AuthRequest;
-import com.example.fixmate.dtos.request.CreateUserRequest;
-import com.example.fixmate.dtos.response.AuthResponse;
-import com.example.fixmate.dtos.response.CreateUserResponse;
-import com.example.fixmate.dtos.response.FetchUserResponse;
-import com.example.fixmate.dtos.response.GetUserResponse;
-import com.example.fixmate.entities.User;
-import com.example.fixmate.service.UserService;
-
+import com.example.fixmate.dtos.request.CreateBookingRequest;
+import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
+import com.example.fixmate.dtos.response.FetchBookingsResponse;
+import com.example.fixmate.dtos.response.FetchSubCategoryResponse;
+import com.example.fixmate.entities.Bookings;
+import com.example.fixmate.service.BookingService;
+import org.springframework.data.domain.Page;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/auth")
-public class UserController {
+@RequestMapping("/bookings")
+public class BookingController {
     @Autowired
-    UserService service;
+    BookingService bookingService;
 
-    @PostMapping("/create-user")
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
+    @PostMapping("/create")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE') or hasAuthority('USER')")
+
+    public ResponseEntity<?> creatingBooking(@RequestBody CreateBookingRequest request) {
         try {
-            CreateUserResponse response = service.createUser(request);
+            CreateSubcategoryResponse response = bookingService.createBooking(request);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();
@@ -58,45 +55,22 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    @GetMapping("fetch-bookings")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE') or hasAuthority('USER')")
+    public ResponseEntity<?> fetchBookings(@RequestParam String userId, @RequestParam String role,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size) {
         try {
-            GetUserResponse response = service.login(request);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException exception) {
-            ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception exception) {
-            ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
-
-    }
-
-    @GetMapping("/getAllUsers")
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public ResponseEntity<?> fetchAllUsers(@RequestParam(required = false) String name,
-            @RequestParam(required = false) String status, String[] sort,
-            @RequestParam(defaultValue = "10", required = false) int size,
-            @RequestParam(defaultValue = "0", required = false) int page, @RequestParam(required = false) String role) {
-        try {
-            Pageable pageable = PageRequest.of(page, size, Sort.by(getSortOrders(sort)));
-            Page<User> userPage = service.fetchUsers(page, name, status, role, pageable);
-            List<FetchUserResponse> data = userPage.getContent().stream().map(FetchUserResponse::fromEntity).toList();
+            Page<Bookings> bookPage = bookingService.fetchBookings(userId, role, page, size);
+            List<FetchBookingsResponse> data = bookPage.getContent().stream()
+                    .map(FetchBookingsResponse::fromEntity)
+                    .toList();
             Map<String, Object> response = new HashMap<>();
             response.put("data", data);
-            response.put("currentPage", userPage.getNumber());
-            response.put("totalItems", userPage.getTotalElements());
-            response.put("totalPages", userPage.getTotalPages());
-            response.put("pageSize", userPage.getSize());
+            response.put("currentPage", bookPage.getNumber());
+            response.put("totalItems", bookPage.getTotalElements());
+            response.put("totalPages", bookPage.getTotalPages());
+            response.put("pageSize", bookPage.getSize());
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException exception) {
@@ -114,40 +88,28 @@ public class UserController {
             System.out.println(exception.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-
     }
 
-    public List<Sort.Order> getSortOrders(String[] sort) {
-        List<Sort.Order> orders = new ArrayList<>();
-
-        // Fallback default: createdAt DESC
-        if (sort == null || sort.length == 0) {
-            orders.add(new Sort.Order(Sort.Direction.DESC, "createdAt"));
-            return orders;
+    @PutMapping("/update-booking")
+    @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE') or hasAuthority('USER')")
+    public ResponseEntity<?> updateBookingStatus(@RequestParam String bookingId, @RequestParam String status) {
+        try {
+            CreateSubcategoryResponse response = bookingService.updateBooking(status, bookingId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
-
-        for (String sortParam : sort) {
-            if (sortParam == null || sortParam.isBlank())
-                continue;
-
-            String[] parts = sortParam.split(",");
-            String field = parts[0].trim();
-            String direction = (parts.length > 1 ? parts[1].trim() : "asc");
-
-            try {
-                orders.add(new Sort.Order(Sort.Direction.fromString(direction), field));
-            } catch (IllegalArgumentException e) {
-                // Invalid direction (e.g., "ascending"), ignore and fallback to ASC
-                orders.add(new Sort.Order(Sort.Direction.ASC, field));
-            }
-        }
-
-        // Still empty? fallback again
-        if (orders.isEmpty()) {
-            orders.add(new Sort.Order(Sort.Direction.DESC, "createdAt"));
-        }
-
-        return orders;
     }
-
 }

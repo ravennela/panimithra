@@ -13,5 +13,6 @@ public interface ServiceRepository
         extends JpaRepository<ServiceEntity, String>, JpaSpecificationExecutor<ServiceEntity> {
 
     Page<ServiceEntity> findAll(Pageable pageable);
+    
 
 }

@@ -24,6 +24,7 @@ import com.example.fixmate.dtos.request.CreateServiceRequest;
 import com.example.fixmate.dtos.response.CreateServiceResponse;
 import com.example.fixmate.dtos.response.FetchCategoryResponse;
 import com.example.fixmate.dtos.response.SearchServiceResponse;
+import com.example.fixmate.dtos.response.ServiceByIdResponse;
 import com.example.fixmate.dtos.response.ServiceResponse;
 import com.example.fixmate.service.ServicesService;
 
@@ -151,7 +152,7 @@ public class ServiceController {
         }
     }
 
-    private List<Sort.Order> getSortOrders(String[] sort) {
+    public List<Sort.Order> getSortOrders(String[] sort) {
         List<Sort.Order> orders = new ArrayList<>();
 
         // Fallback default: createdAt DESC
@@ -182,5 +183,29 @@ public class ServiceController {
         }
 
         return orders;
+    }
+
+    @GetMapping("/getServiceById")
+    @PreAuthorize("hasAuthority('EMPLOYEE') or hasAuthority('USER') ")
+    public ResponseEntity<?> fetchServiceById(@RequestParam String serviceId) {
+        try {
+            ServiceByIdResponse response = service.fetchService(serviceId);
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 }
