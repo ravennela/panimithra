@@ -15,7 +15,7 @@ RUN ./mvnw dependency:go-offline -B
 COPY . .
 
 # Step 5: Build the jar file
-RUN ./mvnw clean package -DskipTest
+RUN ./mvnw clean package -DskipTests
 
 # Step 6: Expose the port (Render uses PORT env)
 EXPOSE 8080
