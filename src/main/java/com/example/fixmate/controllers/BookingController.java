@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.request.CreateBookingRequest;
+import com.example.fixmate.dtos.response.BookingDetails;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.dtos.response.FetchBookingsResponse;
-import com.example.fixmate.dtos.response.FetchSubCategoryResponse;
 import com.example.fixmate.entities.Bookings;
 import com.example.fixmate.service.BookingService;
 import org.springframework.data.domain.Page;
@@ -96,6 +96,33 @@ public class BookingController {
         try {
             CreateSubcategoryResponse response = bookingService.updateBooking(status, bookingId);
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @GetMapping("/booking-byid")
+    @PreAuthorize("hasAuthority('USER')")
+
+    public ResponseEntity<?> getBookingById(@RequestParam String bookingId) {
+
+        try {
+            Bookings bookings = bookingService.getBookingById(bookingId);
+            BookingDetails details = BookingDetails.fromEntity(bookings);
+            return ResponseEntity.ok(details);
+
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();
             System.out.println(exception.getStackTrace());

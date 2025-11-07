@@ -1,10 +1,13 @@
 package com.example.fixmate.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.fixmate.dtos.request.CreateReviewRequest;
 import com.example.fixmate.dtos.response.CreateReviewResponse;
+import com.example.fixmate.dtos.response.TopFiveReviewsResponse;
 import com.example.fixmate.entities.Bookings;
 import com.example.fixmate.entities.Review;
 import com.example.fixmate.entities.ServiceEntity;
@@ -43,11 +46,10 @@ public class ReviewService {
             throw new RuntimeException("Service Not Found");
         }
 
-        // if (reviewRepository.existsByCustomer_IdAndServiceId(request.getCustomerId(),
-        // request.getServiceId())) {
-        // throw new IllegalArgumentException("You have already reviewed this
-        // service.");
-        // }
+        if (reviewRepository.existsByCustomer_IdAndServiceId(request.getCustomerId(),
+                request.getServiceId())) {
+            throw new IllegalArgumentException("You have already reviewed this service.");
+        }
         Review review = new Review();
         review.setComment(request.getComment());
         review.setRating(request.getRating());
@@ -61,5 +63,11 @@ public class ReviewService {
         response.setMessage("Review Added Successfully");
         return response;
 
+    }
+
+    public List<Review> reviewsResponse(String serviceId) {
+        List<Review> topFiveRatingds = reviewRepository.findTop5ByService_IdOrderByCreatedAtDesc(serviceId);
+
+        return topFiveRatingds;
     }
 }

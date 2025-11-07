@@ -103,4 +103,15 @@ public class BookingService {
         return response;
     }
 
+    public Bookings getBookingById(String bookingId) {
+
+        Bookings bookings = bookingRepository.findById(bookingId).orElse(null);
+        if (bookings == null) {
+            throw new RuntimeException("No Bookings Found With this Id");
+        }
+
+        return bookings;
+
+    }
+
 }
