@@ -7,6 +7,25 @@ public class CreateSubscriptionPlanRequest {
     private double price;
     private int durationInDays;
     private String status;
+    private String discount;
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    private double originalPrice;
+
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(double originalPrice) {
+        this.originalPrice = originalPrice;
+    }
 
     public String getPlanName() {
         return planName;

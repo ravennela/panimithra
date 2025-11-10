@@ -1,5 +1,7 @@
 package com.example.fixmate.dtos.response;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.example.fixmate.entities.Bookings;
@@ -16,13 +18,16 @@ public record SearchServiceResponse(
         int duration,
         String serviceId,
         String categoryName,
+
         String categoryDescription,
         String subCategoryName,
         String subCategoroyDescription,
         double avgrating,
         double price,
         String employeeName,
-        String employeeId) {
+        String availableStartTime,
+        String availableEndTime,
+        String employeeId, LocalDateTime createdAt) {
     public static SearchServiceResponse fromEntity(ServiceEntity k) {
         String employeeName = k.getEmployee() != null ? k.getEmployee().getName() : null;
         String employeeId = k.getEmployee() != null ? k.getEmployee().getId() : null;
@@ -31,8 +36,8 @@ public record SearchServiceResponse(
                 k.getCategory().getCategoryName(), k.getCategory().getDescription(),
                 k.getSubCategory().getSubCategoryName(), k.getSubCategory().getDescription(),
                 calculateAverageRating(k.getReviews()), k.getPrice(), employeeName,
-                employeeId);
-
+                k.getAvailableStartTimings(), k.getAvailableEndTiming(),
+                employeeId, k.getCreatedAt());
     }
 
     public static double calculateAverageRating(List<Review> reviews) {

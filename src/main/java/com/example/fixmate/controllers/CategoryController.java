@@ -64,7 +64,6 @@ public class CategoryController {
             Page<Category> catPage = service.fetchCategory(page, size, sortBy, direction);
             List<FetchCategoryResponse> data = catPage.getContent().stream().map(FetchCategoryResponse::fromEntity)
                     .toList();
-
             Map<String, Object> response = new HashMap<>();
             response.put("data", data);
             response.put("currentPage", catPage.getNumber());

@@ -2,6 +2,7 @@ package com.example.fixmate.dtos.response;
 
 import java.util.List;
 
+import com.example.fixmate.entities.ServiceAvailableDate;
 import com.example.fixmate.entities.ServiceEntity;
 import com.example.fixmate.entities.ServiceImage;
 
@@ -13,9 +14,12 @@ public record ServiceResponse(
         double price,
         String status,
         String categoryId,
-        String subCategoryId
+        String subCategoryId,
+        String startTime,
+        String endTime
 
 ) {
+
     public static ServiceResponse fromEntity(ServiceEntity s) {
         return new ServiceResponse(
                 s.getId(),
@@ -24,8 +28,8 @@ public record ServiceResponse(
                 s.getPrice(),
                 s.getStatus(),
                 s.getCategory().getId(),
-                s.getSubCategory().getId()
-
-        );
+                s.getSubCategory().getId(),
+                s.getAvailableStartTimings(),
+                s.getAvailableEndTiming());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.fixmate.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.example.fixmate.entities.ServiceImage;
 import com.example.fixmate.entities.SubCategory;
 import com.example.fixmate.entities.User;
 import com.example.fixmate.repositories.CategoryRepository;
+import com.example.fixmate.repositories.ReviewRepository;
 import com.example.fixmate.repositories.ServiceRepository;
 import com.example.fixmate.repositories.SubCategoryRepository;
 import com.example.fixmate.repositories.UserRepository;
@@ -38,6 +40,8 @@ public class ServicesService {
     ServiceRepository serviceRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ReviewRepository reviewRepository;
 
     public CreateServiceResponse createService(CreateServiceRequest request, String categoryId, String subCategoryId) {
         User employee = userRepository.findById(request.getEmployeeId()).orElse(null);
@@ -67,6 +71,11 @@ public class ServicesService {
         service.setCategory(category);
         service.setSubCategory(subCategory);
         service.setStatus(request.getStatus());
+        service.setAddInfoOne(request.getAddInfoOne());
+        service.setAddInfoTwo(request.getAddInfoTwo());
+        service.setAddInfoThree(request.getAddInfoThree());
+        service.setAvailableStartTimings(request.getAvailableStartTime());
+        service.setAvailableEndTiming(request.getAvailableEndTime());
 
         List<ServiceAvailableDate> availableDates = request.getAvailableDates().stream()
                 .map(dto -> {
@@ -124,6 +133,14 @@ public class ServicesService {
             throw new RuntimeException("No Service Found");
         }
 
+        List<ServiceAvailableDate> dates = serviceRepository.getAvailableDateByService(serviceId);
+        List<String> oList = new ArrayList<>();
+
+        for (int i = 0; i < dates.size(); i++) {
+            oList.add(dates.get(i).getAvailableDate()); // ✅ use .get(index) and getter method
+        }
+
+        long totalCount = reviewRepository.totalReviewsCount(serviceId);
         ServiceByIdResponse response = new ServiceByIdResponse();
         response.setDescription(service.getDescription());
         response.setPrice(service.getPrice());
@@ -133,6 +150,13 @@ public class ServicesService {
         response.setServiceName(service.getName());
         response.setReviews(service.getReviews());
         response.setEmployeeId(service.getEmployee().getId());
+        response.setAddInfoOne(service.getAddInfoOne());
+        response.setAddInfoTwo(service.getAddInfoTwo());
+        response.setCategoryName(service.getCategory().getCategoryName());
+        response.setSubCategoryName(service.getSubCategory().getSubCategoryName());
+        response.setAddInfoThree(service.getAddInfoThree());
+        response.setTotalReviewCount(totalCount);
+        response.setAvailableDates(oList);
         response.setAvaragerating(calculateAverageRating(service.getReviews()));
         return response;
     }

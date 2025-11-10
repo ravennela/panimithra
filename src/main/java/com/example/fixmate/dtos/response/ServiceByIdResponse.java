@@ -12,6 +12,54 @@ public class ServiceByIdResponse {
     private double price;
     private String employeeName;
     private String employeeId;
+    private String addInfoOne;
+    private List<String> availableDates;
+
+    public List<String> getAvailableDates() {
+        return availableDates;
+    }
+
+    public void setAvailableDates(List<String> availableDates) {
+        this.availableDates = availableDates;
+    }
+
+    private long totalReviewCount;
+
+    public long getTotalReviewCount() {
+        return totalReviewCount;
+    }
+
+    public void setTotalReviewCount(long totalReviewCount) {
+        this.totalReviewCount = totalReviewCount;
+    }
+
+    public String getAddInfoOne() {
+        return addInfoOne;
+    }
+
+    public void setAddInfoOne(String addInfoOne) {
+        this.addInfoOne = addInfoOne;
+    }
+
+    private String addInfoTwo;
+
+    public String getAddInfoTwo() {
+        return addInfoTwo;
+    }
+
+    public void setAddInfoTwo(String addInfoTwo) {
+        this.addInfoTwo = addInfoTwo;
+    }
+
+    private String addInfoThree;
+
+    public String getAddInfoThree() {
+        return addInfoThree;
+    }
+
+    public void setAddInfoThree(String addInfoThree) {
+        this.addInfoThree = addInfoThree;
+    }
 
     public String getEmployeeId() {
         return employeeId;
@@ -24,6 +72,25 @@ public class ServiceByIdResponse {
     private int employeeExperiance;
     private String imageUrl;
     private List<Review> reviews;
+    private String categoryName;
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    private String subCategoryName;
+
+    public String getSubCategoryName() {
+        return subCategoryName;
+    }
+
+    public void setSubCategoryName(String subCategoryName) {
+        this.subCategoryName = subCategoryName;
+    }
 
     public String getServiceId() {
         return serviceId;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.request.CreateReviewRequest;
 import com.example.fixmate.dtos.response.CreateReviewResponse;
+import com.example.fixmate.dtos.response.ReviewResponse;
 import com.example.fixmate.dtos.response.TopFiveReviewsResponse;
 import com.example.fixmate.entities.Review;
 import com.example.fixmate.service.ReviewService;
@@ -77,5 +79,38 @@ public class ReviewController {
             System.out.println(exception.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
+    }
+
+    @GetMapping("/fetch-all-reviews")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('EMPLOYEE') or hasAuthority('ADMIN')")
+    public ResponseEntity<?> fetchReviewByServiceId(@RequestParam String serviceId,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10", required = false) int size) {
+        try {
+            Page<Review> reviewPage = reviewService.findReviewByServiceId(serviceId, page, size);
+            List<ReviewResponse> list = reviewPage.getContent().stream().map(ReviewResponse::fromEntity).toList();
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", list);
+            response.put("currentPage", reviewPage.getNumber());
+            response.put("totalItems", reviewPage.getTotalElements());
+            response.put("totalPages", reviewPage.getTotalPages());
+            response.put("pageSize", reviewPage.getSize());
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
     }
 }

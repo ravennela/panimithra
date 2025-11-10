@@ -3,6 +3,9 @@ package com.example.fixmate.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.fixmate.dtos.request.CreateReviewRequest;
@@ -69,5 +72,11 @@ public class ReviewService {
         List<Review> topFiveRatingds = reviewRepository.findTop5ByService_IdOrderByCreatedAtDesc(serviceId);
 
         return topFiveRatingds;
+    }
+
+    public Page<Review> findReviewByServiceId(String serviceId, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return reviewRepository.findByService_Id(serviceId, pageable);
     }
 }

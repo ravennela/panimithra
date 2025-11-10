@@ -18,13 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.fixmate.dtos.custom.ApiErrorDto;
-import com.example.fixmate.dtos.custom.UserSpecifications;
 import com.example.fixmate.dtos.request.AuthRequest;
 import com.example.fixmate.dtos.request.CreateUserRequest;
-import com.example.fixmate.dtos.response.AuthResponse;
 import com.example.fixmate.dtos.response.CreateUserResponse;
 import com.example.fixmate.dtos.response.FetchUserResponse;
 import com.example.fixmate.dtos.response.GetUserResponse;
+import com.example.fixmate.dtos.response.UserProfileResponse;
 import com.example.fixmate.entities.User;
 import com.example.fixmate.service.UserService;
 
@@ -129,7 +128,6 @@ public class UserController {
         for (String sortParam : sort) {
             if (sortParam == null || sortParam.isBlank())
                 continue;
-
             String[] parts = sortParam.split(",");
             String field = parts[0].trim();
             String direction = (parts.length > 1 ? parts[1].trim() : "asc");
@@ -141,13 +139,35 @@ public class UserController {
                 orders.add(new Sort.Order(Sort.Direction.ASC, field));
             }
         }
-
         // Still empty? fallback again
         if (orders.isEmpty()) {
             orders.add(new Sort.Order(Sort.Direction.DESC, "createdAt"));
         }
-
         return orders;
+    }
+
+    @GetMapping("/user-profile")
+    @PreAuthorize("hasAuthority('USER') or hasAuthority('EMPLOYEE')")
+    public ResponseEntity<?> userProfile(@RequestParam String userId) {
+        try {
+            User user = service.userprofile(userId);
+            UserProfileResponse response = UserProfileResponse.fromEntity(user);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
 }

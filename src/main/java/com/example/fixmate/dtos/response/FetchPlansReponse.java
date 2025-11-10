@@ -8,10 +8,12 @@ public record FetchPlansReponse(
         String planDescription,
         double price,
         int duration,
-        String status) {
+        String status,
+        String discount,
+        double originalPrice) {
     public static FetchPlansReponse fromEntity(SubscriptionPlan k) {
         return new FetchPlansReponse(k.getId(), k.getPlanName(), k.getDescription(), k.getPrice(),
-                k.getDurationInDays(), k.getStatus());
+                k.getDurationInDays(), k.getStatus(), k.getDiscount(), k.getOriginalPrice());
 
     }
 }

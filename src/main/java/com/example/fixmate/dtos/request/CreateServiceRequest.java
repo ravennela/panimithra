@@ -17,9 +17,54 @@ public class CreateServiceRequest {
 
     private double longitude;
     private String employeeId;
+    private String availableStartTime;
+    private String availableEndTime;
+    private String addInfoOne;
+    private String addInfoTwo;
+    private String addInfoThree;
 
     public String getEmployeeId() {
         return employeeId;
+    }
+
+    public String getAvailableStartTime() {
+        return availableStartTime;
+    }
+
+    public void setAvailableStartTime(String availableStartTime) {
+        this.availableStartTime = availableStartTime;
+    }
+
+    public String getAvailableEndTime() {
+        return availableEndTime;
+    }
+
+    public void setAvailableEndTime(String availableEndTime) {
+        this.availableEndTime = availableEndTime;
+    }
+
+    public String getAddInfoOne() {
+        return addInfoOne;
+    }
+
+    public void setAddInfoOne(String addInfoOne) {
+        this.addInfoOne = addInfoOne;
+    }
+
+    public String getAddInfoTwo() {
+        return addInfoTwo;
+    }
+
+    public void setAddInfoTwo(String addInfoTwo) {
+        this.addInfoTwo = addInfoTwo;
+    }
+
+    public String getAddInfoThree() {
+        return addInfoThree;
+    }
+
+    public void setAddInfoThree(String addInfoThree) {
+        this.addInfoThree = addInfoThree;
     }
 
     public void setEmployeeId(String employeeId) {

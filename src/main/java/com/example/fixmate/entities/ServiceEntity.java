@@ -45,6 +45,52 @@ public class ServiceEntity {
     private double longitude;
 
     private String address;
+    private String availableStartTimings;
+    private String availableEndTiming;
+    private String addInfoOne;
+
+    public String getAvailableStartTimings() {
+        return availableStartTimings;
+    }
+
+    public void setAvailableStartTimings(String availableStartTimings) {
+        this.availableStartTimings = availableStartTimings;
+    }
+
+    public String getAvailableEndTiming() {
+        return availableEndTiming;
+    }
+
+    public void setAvailableEndTiming(String availableEndTiming) {
+        this.availableEndTiming = availableEndTiming;
+    }
+
+    public String getAddInfoOne() {
+        return addInfoOne;
+    }
+
+    public void setAddInfoOne(String addInfoOne) {
+        this.addInfoOne = addInfoOne;
+    }
+
+    public String getAddInfoTwo() {
+        return addInfoTwo;
+    }
+
+    public void setAddInfoTwo(String addInfoTwo) {
+        this.addInfoTwo = addInfoTwo;
+    }
+
+    public String getAddInfoThree() {
+        return addInfoThree;
+    }
+
+    public void setAddInfoThree(String addInfoThree) {
+        this.addInfoThree = addInfoThree;
+    }
+
+    private String addInfoTwo;
+    private String addInfoThree;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

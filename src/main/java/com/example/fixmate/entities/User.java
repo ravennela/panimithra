@@ -15,7 +15,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -59,7 +58,7 @@ public class User {
 
     private String status;
     private String alternateNumber;
-    private String primaryService;  
+    private String primaryService;
     private int experiance;
     private String shortBio;
 

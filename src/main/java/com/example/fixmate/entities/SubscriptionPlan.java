@@ -28,6 +28,25 @@ public class SubscriptionPlan {
     private String description;
 
     private double price;
+    private String discount;
+
+    public String getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(String discount) {
+        this.discount = discount;
+    }
+
+    private double originalPrice;
+
+    public double getOriginalPrice() {
+        return originalPrice;
+    }
+
+    public void setOriginalPrice(double originalPrice) {
+        this.originalPrice = originalPrice;
+    }
 
     private int durationInDays;
 

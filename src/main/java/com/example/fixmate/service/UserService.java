@@ -143,4 +143,13 @@ public class UserService {
         Specification<User> spec = UserSpecifications.filter(name, status, role);
         return userRepository.findAll(spec, pageable);
     }
+
+    public User userprofile(String userId) {
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("No User Found With this Details");
+        }
+        return user;
+    }
 }
