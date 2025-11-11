@@ -32,5 +32,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
             @Param("userId") String userId,
             @Param("date") LocalDate date);
 
+            
     Subscription findTopByEmployee_IdOrderByStartDateDesc(String userId);
 }

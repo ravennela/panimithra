@@ -56,9 +56,9 @@ public class SubscriptionPlanController {
     }
 
     @GetMapping("/fetch-plans")
-    public ResponseEntity<?> getAllPlans() {
+    public ResponseEntity<?> getAllPlans(@RequestParam(required = false) String status) {
         try {
-            List<SubscriptionPlan> allPlans = service.fetchPlan();
+            List<SubscriptionPlan> allPlans = service.fetchPlan(status);
             List<FetchPlansReponse> plans = allPlans.stream().map(FetchPlansReponse::fromEntity).toList();
             Map<String, Object> data = new HashMap<>();
             data.put("data", plans);

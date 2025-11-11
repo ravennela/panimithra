@@ -112,21 +112,22 @@ public class ServiceController {
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) Double minRating,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String[] sort,
             @RequestParam(required = false) String categoryName,
-            @RequestParam(required = false) String subCategoryName) {
-        // Parse sort parameters
+            @RequestParam(required = false) String subCategoryName,
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double radious,
+
+            Pageable pageable) {
         try {
-
-            Pageable pageable = PageRequest.of(page, size, Sort.by(getSortOrders(sort)));
-
             Page<ServiceEntity> results = service.searchServices(
-                    categoryId, serviceName, minPrice, maxPrice, minRating, pageable, categoryName, subCategoryName);
+                    categoryId, serviceName, minPrice, maxPrice, minRating, pageable, categoryName, subCategoryName,
+                    latitude, longitude, radious);
 
-            List<SearchServiceResponse> data = results.getContent().stream().map(SearchServiceResponse::fromEntity)
+            List<SearchServiceResponse> data = results.getContent().stream()
+                    .map(SearchServiceResponse::fromEntity)
                     .toList();
+
             Map<String, Object> output = new HashMap<>();
             output.put("data", data);
             output.put("currentPage", results.getNumber());
@@ -135,20 +136,11 @@ public class ServiceController {
             output.put("pageSize", results.getSize());
 
             return ResponseEntity.ok(output);
-        } catch (IllegalArgumentException exception) {
+        } catch (Exception e) {
             ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception exception) {
-            ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            response.setError(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 

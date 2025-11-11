@@ -11,10 +11,47 @@ import com.example.fixmate.entities.ServiceEntity;
 public class ServiceSpecification {
 
     public static Specification<ServiceEntity> filter(String categoryId, String serviceName, Double minPrice,
-            Double maxPrice, Double minRating, String categoryName, String subCategoryName) {
+            Double maxPrice, Double minRating, String categoryName, String subCategoryName, Double latitude,
+            Double longitude, Double radious) {
         return (root, query, cb) -> {
+            String status = "ACTIVE";
             List<Predicate> predicates = new ArrayList<>();
             Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
+            Join<Object, Object> employeeJoin = root.join("employee", JoinType.INNER);
+
+            if (latitude != null && longitude != null && radious != null) {
+                Path<Double> empLat = employeeJoin.get("latitude");
+                Path<Double> empLng = employeeJoin.get("longitude");
+
+                // Use cb.literal(6371.0) for Double literal
+                Expression<Double> acosExpression = cb.function(
+                        "acos",
+                        Double.class,
+                        cb.sum(
+                                cb.prod(
+                                        cb.function("cos", Double.class,
+                                                cb.function("radians", Double.class, cb.literal(latitude))),
+                                        cb.prod(
+                                                cb.function("cos", Double.class,
+                                                        cb.function("radians", Double.class, empLat)),
+                                                cb.function("cos", Double.class,
+                                                        cb.diff(
+                                                                cb.function("radians", Double.class, empLng),
+                                                                cb.function("radians", Double.class,
+                                                                        cb.literal(longitude)))))),
+                                cb.prod(
+                                        cb.function("sin", Double.class,
+                                                cb.function("radians", Double.class, cb.literal(latitude))),
+                                        cb.function("sin", Double.class,
+                                                cb.function("radians", Double.class, empLat)))));
+
+                // 👇 Cast the result explicitly to Expression<Double>
+                Expression<Double> distanceExpr = cb.prod(cb.literal(6371.0), (Expression<Double>) acosExpression);
+
+                predicates.add(cb.lessThan(distanceExpr, radious));
+
+
+            }
 
             if (categoryId != null && !categoryId.isEmpty()) {
                 predicates.add(cb.equal(categoryJoin.get("id"), categoryId));
@@ -31,6 +68,8 @@ public class ServiceSpecification {
                         .add(cb.like(cb.lower(subCategoryJoin.get("subCategoryName")),
                                 "%" + subCategoryName.toLowerCase() + "%"));
             }
+            predicates.add(cb.equal(cb.lower(employeeJoin.get("status")), status.toLowerCase()));
+
             if (serviceName != null && !serviceName.isEmpty()) {
                 predicates.add(cb.like(cb.lower(root.get("name")), "%" + serviceName.toLowerCase() + "%"));
             }

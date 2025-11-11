@@ -120,9 +120,10 @@ public class ServicesService {
             Double minPrice,
             Double maxPrice,
             Double minRating,
-            Pageable pageable, String categoryName, String subCategoryName) {
+            Pageable pageable, String categoryName, String subCategoryName, Double latitude, Double longitude,
+            Double radious) {
         Specification<ServiceEntity> spec = ServiceSpecification.filter(categoryId, serviceName, minPrice, maxPrice,
-                minRating, categoryName, subCategoryName);
+                minRating, categoryName, subCategoryName,latitude,longitude,radious);
 
         return serviceRepository.findAll(spec, pageable);
     }

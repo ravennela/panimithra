@@ -35,9 +35,15 @@ public class SubscriptionPlanService {
         return response;
     }
 
-    public List<SubscriptionPlan> fetchPlan() {
+    public List<SubscriptionPlan> fetchPlan(String status) {
+        String actStatus = "";
+        if (status == null) {
+            actStatus = "ACTIVE";
+        } else {
+            actStatus = status;
+        }
         List<SubscriptionPlan> planList = new ArrayList<>();
-        planList = repository.findAll();
+        planList = repository.getOnlyActivePlans(actStatus);
         return planList;
     }
 

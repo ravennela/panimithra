@@ -16,6 +16,7 @@ import com.example.fixmate.dtos.custom.UserSpecifications;
 import com.example.fixmate.dtos.request.AuthRequest;
 import com.example.fixmate.dtos.request.CreateUserRequest;
 import com.example.fixmate.dtos.response.AuthResponse;
+import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.dtos.response.CreateUserResponse;
 import com.example.fixmate.dtos.response.GetUserResponse;
 import com.example.fixmate.entities.Subscription;
@@ -151,5 +152,17 @@ public class UserService {
             throw new RuntimeException("No User Found With this Details");
         }
         return user;
+    }
+
+    public CreateSubcategoryResponse deleteUser(String userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("No User Found With this Details");
+        }
+        userRepository.deleteById(userId);
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(userId);
+        response.setMessage("User Deleted Successfully");
+        return response;
     }
 }
