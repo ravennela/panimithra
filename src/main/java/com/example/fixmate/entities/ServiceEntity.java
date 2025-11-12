@@ -48,6 +48,15 @@ public class ServiceEntity {
     private String availableStartTimings;
     private String availableEndTiming;
     private String addInfoOne;
+    private String iconUrl;
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
 
     public String getAvailableStartTimings() {
         return availableStartTimings;

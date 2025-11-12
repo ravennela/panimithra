@@ -22,6 +22,15 @@ public class CreateServiceRequest {
     private String addInfoOne;
     private String addInfoTwo;
     private String addInfoThree;
+    private String iconUrl;
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
 
     public String getEmployeeId() {
         return employeeId;

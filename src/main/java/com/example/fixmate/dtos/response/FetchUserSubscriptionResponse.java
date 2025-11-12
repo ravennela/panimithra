@@ -8,7 +8,6 @@ public record FetchUserSubscriptionResponse(
                 String planname,
                 double price,
                 String id,
-
                 String status,
                 LocalDate startDate,
                 LocalDate enDate,

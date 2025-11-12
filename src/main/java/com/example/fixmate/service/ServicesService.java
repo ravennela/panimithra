@@ -76,7 +76,7 @@ public class ServicesService {
         service.setAddInfoThree(request.getAddInfoThree());
         service.setAvailableStartTimings(request.getAvailableStartTime());
         service.setAvailableEndTiming(request.getAvailableEndTime());
-
+        service.setIconUrl(request.getIconUrl());
         List<ServiceAvailableDate> availableDates = request.getAvailableDates().stream()
                 .map(dto -> {
                     ServiceAvailableDate date = new ServiceAvailableDate();
@@ -123,7 +123,7 @@ public class ServicesService {
             Pageable pageable, String categoryName, String subCategoryName, Double latitude, Double longitude,
             Double radious) {
         Specification<ServiceEntity> spec = ServiceSpecification.filter(categoryId, serviceName, minPrice, maxPrice,
-                minRating, categoryName, subCategoryName,latitude,longitude,radious);
+                minRating, categoryName, subCategoryName, latitude, longitude, radious);
 
         return serviceRepository.findAll(spec, pageable);
     }
