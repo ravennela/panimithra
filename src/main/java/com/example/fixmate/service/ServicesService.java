@@ -106,12 +106,12 @@ public class ServicesService {
         return response;
     }
 
-    public Page<ServiceEntity> getAllService(int page, int size, String sortBy, String direction) {
+    public Page<ServiceEntity> getAllService(int page, int size, String sortBy, String direction, String employeeId) {
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
         Pageable pageable = PageRequest.of(page, size, sort);
-        return serviceRepository.findAll(pageable);
+        return serviceRepository.findByEmployee_Id(employeeId, pageable);
     }
 
     public Page<ServiceEntity> searchServices(

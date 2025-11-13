@@ -16,7 +16,8 @@ public record ServiceResponse(
         String categoryId,
         String subCategoryId,
         String startTime,
-        String endTime
+        String endTime,
+        String iconUrl
 
 ) {
 
@@ -30,6 +31,6 @@ public record ServiceResponse(
                 s.getCategory().getId(),
                 s.getSubCategory().getId(),
                 s.getAvailableStartTimings(),
-                s.getAvailableEndTiming());
+                s.getAvailableEndTiming(), s.getIconUrl());
     }
 }

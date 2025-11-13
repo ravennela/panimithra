@@ -70,10 +70,10 @@ public class ServiceController {
     public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String direction) {
+            @RequestParam(defaultValue = "desc") String direction, @RequestParam String employeeId) {
 
         try {
-            Page<ServiceEntity> servicePage = service.getAllService(page, size, sortBy, direction);
+            Page<ServiceEntity> servicePage = service.getAllService(page, size, sortBy, direction, employeeId);
             List<ServiceResponse> data = servicePage.getContent()
                     .stream()
                     .map(ServiceResponse::fromEntity)

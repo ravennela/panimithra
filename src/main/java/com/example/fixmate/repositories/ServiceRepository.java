@@ -17,7 +17,7 @@ import org.springframework.data.domain.Page;
 public interface ServiceRepository
         extends JpaRepository<ServiceEntity, String>, JpaSpecificationExecutor<ServiceEntity> {
 
-    Page<ServiceEntity> findAll(Pageable pageable);
+    Page<ServiceEntity> findByEmployee_Id(String employeeId, Pageable pageable);
 
     @Query("SELECT s.availableDates FROM ServiceEntity s WHERE s.id = :serviceId")
     List<ServiceAvailableDate> getAvailableDateByService(@Param("serviceId") String serviceId);
