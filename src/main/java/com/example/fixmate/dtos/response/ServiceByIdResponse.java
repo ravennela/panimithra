@@ -13,7 +13,68 @@ public class ServiceByIdResponse {
     private String employeeName;
     private String employeeId;
     private String addInfoOne;
+    private String categoryId;
     private List<String> availableDates;
+    private int employeeExperiance;
+    private String imageUrl;
+    private List<Review> reviews;
+    private String categoryName;
+    private String address;
+    private String iconUrl;
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    private String subCategoryId;
+
+    public String getSubCategoryId() {
+        return subCategoryId;
+    }
+
+    public void setSubCategoryId(String subCategoryId) {
+        this.subCategoryId = subCategoryId;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    private String startTime;
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    private String endTime;
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getIconUrl() {
+        return iconUrl;
+    }
+
+    public void setIconUrl(String iconUrl) {
+        this.iconUrl = iconUrl;
+    }
 
     public List<String> getAvailableDates() {
         return availableDates;
@@ -68,11 +129,6 @@ public class ServiceByIdResponse {
     public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
-
-    private int employeeExperiance;
-    private String imageUrl;
-    private List<Review> reviews;
-    private String categoryName;
 
     public String getCategoryName() {
         return categoryName;

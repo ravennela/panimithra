@@ -159,6 +159,12 @@ public class ServicesService {
         response.setTotalReviewCount(totalCount);
         response.setAvailableDates(oList);
         response.setAvaragerating(calculateAverageRating(service.getReviews()));
+        response.setIconUrl(service.getIconUrl());
+        response.setAddress(service.getAddress());
+        response.setCategoryId(service.getCategory().getId());
+        response.setSubCategoryId(service.getSubCategory().getId());
+        response.setStartTime(service.getAvailableStartTimings());
+        response.setEndTime(service.getAvailableEndTiming());
         return response;
     }
 
