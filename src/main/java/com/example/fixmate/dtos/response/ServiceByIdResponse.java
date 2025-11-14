@@ -1,5 +1,6 @@
 package com.example.fixmate.dtos.response;
 
+import java.time.LocalTime;
 import java.util.List;
 
 import com.example.fixmate.entities.Review;
@@ -21,6 +22,25 @@ public class ServiceByIdResponse {
     private String categoryName;
     private String address;
     private String iconUrl;
+    private LocalTime timeIn;
+
+    public LocalTime getTimeIn() {
+        return timeIn;
+    }
+
+    public void setTimeIn(LocalTime timeIn) {
+        this.timeIn = timeIn;
+    }
+
+    private LocalTime timeOut;
+
+    public LocalTime getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(LocalTime timeOut) {
+        this.timeOut = timeOut;
+    }
 
     public String getCategoryId() {
         return categoryId;

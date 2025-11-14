@@ -32,6 +32,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @RestController
 @RequestMapping("/service")
@@ -47,6 +49,34 @@ public class ServiceController {
 
             CreateServiceResponse response = service.createService(request, catId, subCatId);
             return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
+    }
+
+    @PutMapping("/update-service")
+    @PreAuthorize("hasAuthority('EMPLOYEE')")
+    public ResponseEntity<?> updateservice(@RequestParam String serviceId,
+            @RequestBody CreateServiceRequest createServiceRequest, @RequestParam String categoryId,
+            @RequestParam String subCategoryId) {
+        try {
+            CreateServiceResponse response = service.updateService(serviceId, createServiceRequest, categoryId,
+                    subCategoryId);
+            return ResponseEntity.ok(response);
+
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();
             System.out.println(exception.getStackTrace());

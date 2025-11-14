@@ -1,6 +1,7 @@
 package com.example.fixmate.entities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,25 @@ public class ServiceEntity {
     private String availableEndTiming;
     private String addInfoOne;
     private String iconUrl;
+    private LocalTime timeIn;
+
+    public LocalTime getTimeIn() {
+        return timeIn;
+    }
+
+    public void setTimeIn(LocalTime timeIn) {
+        this.timeIn = timeIn;
+    }
+
+    private LocalTime timeOut;
+
+    public LocalTime getTimeOut() {
+        return timeOut;
+    }
+
+    public void setTimeOut(LocalTime timeOut) {
+        this.timeOut = timeOut;
+    }
 
     public String getIconUrl() {
         return iconUrl;

@@ -58,7 +58,6 @@ public class ServicesService {
                 throw new RuntimeException("No Sub Category Found");
             }
         }
-
         ServiceEntity service = new ServiceEntity();
         service.setAddress(request.getAddress());
         service.setDescription(request.getDescription());
@@ -76,6 +75,8 @@ public class ServicesService {
         service.setAddInfoThree(request.getAddInfoThree());
         service.setAvailableStartTimings(request.getAvailableStartTime());
         service.setAvailableEndTiming(request.getAvailableEndTime());
+        service.setTimeIn(request.getTimeIn());
+        service.setTimeOut(request.getTimeOut());
         service.setIconUrl(request.getIconUrl());
         List<ServiceAvailableDate> availableDates = request.getAvailableDates().stream()
                 .map(dto -> {
@@ -98,6 +99,83 @@ public class ServicesService {
 
         service.setAvailableDates(availableDates);
         service.setImages(images);
+        serviceRepository.save(service);
+
+        CreateServiceResponse response = new CreateServiceResponse();
+        response.setMessage("Service Created Successfully");
+        response.setId(service.getId());
+        return response;
+    }
+
+    public CreateServiceResponse updateService(String serviceId, CreateServiceRequest request, String categoryId,
+            String subCategoryId) {
+
+        Category category = categoryRepository.findById(categoryId).orElse(null);
+        if (category == null) {
+            throw new RuntimeException("No Category Found");
+        }
+        SubCategory subCategory = subCategoryRepository.findById(subCategoryId).orElse(null);
+        if (subCategoryId != null) {
+            if (subCategory == null) {
+                throw new RuntimeException("No Sub Category Found");
+            }
+        }
+        ServiceEntity service = serviceRepository.findById(serviceId).orElse(null);
+        if (service == null) {
+            throw new RuntimeException("No Service Found");
+        }
+        service.setAddress(request.getAddress());
+        service.setDescription(request.getDescription());
+
+        service.setLatitude(request.getLatitude());
+        service.setLongitude(request.getLongitude());
+        service.setDuration(request.getDuration());
+        service.setName(request.getName());
+        service.setPrice(request.getPrice());
+        service.setCategory(category);
+        service.setSubCategory(subCategory);
+        service.setStatus(request.getStatus());
+        service.setAddInfoOne(request.getAddInfoOne());
+        service.setAddInfoTwo(request.getAddInfoTwo());
+        service.setAddInfoThree(request.getAddInfoThree());
+        service.setAvailableStartTimings(request.getAvailableStartTime());
+        service.setAvailableEndTiming(request.getAvailableEndTime());
+        service.setTimeIn(request.getTimeIn());
+        service.setTimeOut(request.getTimeOut());
+        service.setIconUrl(request.getIconUrl());
+        List<ServiceAvailableDate> availableDates = request.getAvailableDates().stream()
+                .map(dto -> {
+                    ServiceAvailableDate date = new ServiceAvailableDate();
+                    date.setAvailableDate(dto.getAvailableDate());
+                    date.setService(service);
+                    return date;
+                })
+                .collect(Collectors.toList());
+
+        // Map images
+        List<ServiceImage> images = request.getImages().stream()
+                .map(dto -> {
+                    ServiceImage img = new ServiceImage();
+                    img.setImageUrl(dto.getImageUrls());
+                    img.setService(service);
+                    return img;
+                })
+                .collect(Collectors.toList());
+
+        if (service.getAvailableDates() != null) {
+            service.getAvailableDates().clear();
+            service.getAvailableDates().addAll(availableDates);
+        } else {
+            service.setAvailableDates(availableDates);
+        }
+
+        // Update images safely
+        if (service.getImages() != null) {
+            service.getImages().clear();
+            service.getImages().addAll(images);
+        } else {
+            service.setImages(images);
+        }
         serviceRepository.save(service);
 
         CreateServiceResponse response = new CreateServiceResponse();
@@ -156,8 +234,6 @@ public class ServicesService {
         response.setCategoryName(service.getCategory().getCategoryName());
         response.setSubCategoryName(service.getSubCategory().getSubCategoryName());
         response.setAddInfoThree(service.getAddInfoThree());
-        response.setTotalReviewCount(totalCount);
-        response.setAvailableDates(oList);
         response.setAvaragerating(calculateAverageRating(service.getReviews()));
         response.setIconUrl(service.getIconUrl());
         response.setAddress(service.getAddress());
@@ -165,6 +241,10 @@ public class ServicesService {
         response.setSubCategoryId(service.getSubCategory().getId());
         response.setStartTime(service.getAvailableStartTimings());
         response.setEndTime(service.getAvailableEndTiming());
+        response.setTimeIn(service.getTimeIn());
+        response.setTimeOut(service.getTimeOut());
+        response.setTotalReviewCount(totalCount);
+        response.setAvailableDates(oList);
         return response;
     }
 
@@ -176,4 +256,5 @@ public class ServicesService {
                 .average()
                 .orElse(0.0);
     }
+
 }
