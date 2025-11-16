@@ -114,15 +114,37 @@ public class BookingController {
     }
 
     @GetMapping("/booking-byid")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAuthority('USER')or hasAuthority('EMPLOYEE') ")
 
     public ResponseEntity<?> getBookingById(@RequestParam String bookingId) {
-
         try {
             Bookings bookings = bookingService.getBookingById(bookingId);
             BookingDetails details = BookingDetails.fromEntity(bookings);
             return ResponseEntity.ok(details);
 
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PutMapping("/update-payment-status")
+    @PreAuthorize("hasAuthority('ADMIN')or hasAuthority('EMPLOYEE')")
+    public ResponseEntity<?> updatePaymentStatus(@RequestParam String bookingId) {
+        try {
+            CreateSubcategoryResponse response = bookingService.updatePaymentStatus(bookingId);
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();
             System.out.println(exception.getStackTrace());

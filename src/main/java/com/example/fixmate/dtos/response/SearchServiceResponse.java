@@ -27,7 +27,7 @@ public record SearchServiceResponse(
         String employeeName,
         String availableStartTime,
         String availableEndTime,
-        String employeeId, LocalDateTime createdAt) {
+        String employeeId, LocalDateTime createdAt, String iconUrl) {
     public static SearchServiceResponse fromEntity(ServiceEntity k) {
         String employeeName = k.getEmployee() != null ? k.getEmployee().getName() : null;
         String employeeId = k.getEmployee() != null ? k.getEmployee().getId() : null;
@@ -37,7 +37,7 @@ public record SearchServiceResponse(
                 k.getSubCategory().getSubCategoryName(), k.getSubCategory().getDescription(),
                 calculateAverageRating(k.getReviews()), k.getPrice(), employeeName,
                 k.getAvailableStartTimings(), k.getAvailableEndTiming(),
-                employeeId, k.getCreatedAt());
+                employeeId, k.getCreatedAt(), k.getIconUrl());
     }
 
     public static double calculateAverageRating(List<Review> reviews) {

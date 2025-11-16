@@ -1,12 +1,11 @@
 package com.example.fixmate.dtos.response;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
-import com.example.fixmate.entities.ServiceAvailableDate;
 import com.example.fixmate.entities.ServiceEntity;
-import com.example.fixmate.entities.ServiceImage;
 
 public record ServiceResponse(
+        int duration,
         String id,
         String serviceName,
         String categoryName,
@@ -17,12 +16,12 @@ public record ServiceResponse(
         String subCategoryId,
         String startTime,
         String endTime,
-        String iconUrl
-
-) {
-
+        String iconUrl,
+        String subCategoryName,
+        LocalDateTime createdAt) {
     public static ServiceResponse fromEntity(ServiceEntity s) {
         return new ServiceResponse(
+                s.getDuration(),
                 s.getId(),
                 s.getName(),
                 s.getCategory().getCategoryName(), s.getDescription(),
@@ -31,6 +30,6 @@ public record ServiceResponse(
                 s.getCategory().getId(),
                 s.getSubCategory().getId(),
                 s.getAvailableStartTimings(),
-                s.getAvailableEndTiming(), s.getIconUrl());
+                s.getAvailableEndTiming(), s.getIconUrl(), s.getSubCategory().getSubCategoryName(), s.getCreatedAt());
     }
 }
