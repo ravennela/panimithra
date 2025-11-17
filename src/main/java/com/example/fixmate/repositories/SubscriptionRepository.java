@@ -9,29 +9,33 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.fixmate.entities.Subscription;
+import com.example.fixmate.entities.User;
 
 public interface SubscriptionRepository extends JpaRepository<Subscription, String> {
 
-    @Query("""
-            SELECT s
-            FROM Subscription s
-            JOIN FETCH s.employee e
-            JOIN FETCH s.subscriptionPlan p
-            WHERE e.id = :userId
-            """)
-    List<Subscription> findSubscriptionsByUserId(@Param("userId") String userId);
+        @Query("""
+                        SELECT s
+                        FROM Subscription s
+                        JOIN FETCH s.employee e
+                        JOIN FETCH s.subscriptionPlan p
+                        WHERE e.id = :userId
+                        """)
+        List<Subscription> findSubscriptionsByUserId(@Param("userId") String userId);
 
-    @Query("""
-            SELECT s
-            FROM Subscription s
-            WHERE s.employee.id = :userId
-            AND :date BETWEEN s.startDate AND s.endDate
-            AND s.status = 'ACTIVE'
-            """)
-    Optional<Subscription> findActiveByEmployee_Id(
-            @Param("userId") String userId,
-            @Param("date") LocalDate date);
+        @Query("""
+                        SELECT s
+                        FROM Subscription s
+                        WHERE s.employee.id = :userId
+                        AND :date BETWEEN s.startDate AND s.endDate
+                        AND s.status = 'ACTIVE'
+                        """)
+        Optional<Subscription> findActiveByEmployee_Id(
+                        @Param("userId") String userId,
+                        @Param("date") LocalDate date);
 
-            
-    Subscription findTopByEmployee_IdOrderByStartDateDesc(String userId);
+        Subscription findTopByEmployee_IdOrderByStartDateDesc(String userId);
+
+        @Query("SELECT e FROM USER e  Left Join Subscription s where s.endDate < CURRENT_DATE and e.status ='ACTIVE'")
+        List<User> findEmployeesWhosSubscriptionExpired();
+
 }

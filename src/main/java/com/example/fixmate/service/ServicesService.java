@@ -142,7 +142,10 @@ public class ServicesService {
         service.setAvailableEndTiming(request.getAvailableEndTime());
         service.setTimeIn(request.getTimeIn());
         service.setTimeOut(request.getTimeOut());
-        service.setIconUrl(request.getIconUrl());
+        if (request.getIconUrl() != null) {
+            service.setIconUrl(request.getIconUrl());
+        }
+
         List<ServiceAvailableDate> availableDates = request.getAvailableDates().stream()
                 .map(dto -> {
                     ServiceAvailableDate date = new ServiceAvailableDate();
