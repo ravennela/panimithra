@@ -35,7 +35,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
 
         Subscription findTopByEmployee_IdOrderByStartDateDesc(String userId);
 
-        @Query("SELECT e FROM USER e  Left Join Subscription s where s.endDate < CURRENT_DATE and e.status ='ACTIVE'")
+        @Query("SELECT e FROM User e   Join e.subscription  s where s.endDate < CURRENT_DATE and e.status ='ACTIVE'")
         List<User> findEmployeesWhosSubscriptionExpired();
 
 }
