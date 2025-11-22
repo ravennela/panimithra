@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.request.CreateSubCategoryRequest;
+import com.example.fixmate.dtos.request.UpdateSubCategoryRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.dtos.response.FetchCategoryResponse;
+import com.example.fixmate.dtos.response.FetchSubCategoryByIdResponse;
 import com.example.fixmate.dtos.response.FetchSubCategoryResponse;
 import com.example.fixmate.entities.Category;
 import com.example.fixmate.entities.SubCategory;
@@ -24,8 +26,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -98,4 +102,73 @@ public class SubcategoryController {
         }
     }
 
+    @DeleteMapping("/delete-sub-category")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> deleteSubCategory(@RequestParam String subCategoryId) {
+        try {
+            CreateSubcategoryResponse response = service.deleteSubCategory(subCategoryId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @GetMapping("/fetch-subcategory-by-id")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> fetchSubCategoryById(@RequestParam String subCategoryId) {
+        try {
+            SubCategory subCategory = service.fetchSubCategoryById(subCategoryId);
+            FetchSubCategoryByIdResponse res = FetchSubCategoryByIdResponse.fromEntity(subCategory);
+            return ResponseEntity.ok(res);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PutMapping("/update-subcategory")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> updateSubCategory(@RequestBody UpdateSubCategoryRequest request) {
+        try {
+            CreateSubcategoryResponse response = service.updateSubCategory(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
 }

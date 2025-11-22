@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -177,6 +178,29 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@RequestParam String userId) {
         try {
             CreateSubcategoryResponse response = service.deleteUser(userId);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PutMapping("/change-user-status")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<?> changeUserStatus(@RequestParam String userId, @RequestParam String status) {
+        try {
+            CreateSubcategoryResponse response = service.changeUserStatus(userId, status);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();

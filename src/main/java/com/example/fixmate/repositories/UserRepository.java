@@ -32,5 +32,12 @@ public interface UserRepository extends JpaRepository<User, String>, JpaSpecific
 
     @Query("SELECT new com.example.fixmate.dtos.response.CityEmployeeCountDTO(u.city, COUNT(u)) FROM User u WHERE  u.role=:role GROUP BY u.city")
     List<CityEmployeeCountDTO> findEmployeeCountGroupedByCity(@Param("role") String role);
-    
+    @Query("""
+        SELECT DISTINCT u
+        FROM User u 
+        JOIN u.subscriptions s
+        WHERE s.endDate < CURRENT_DATE
+        AND u.status = 'ACTIVE'
+    """)
+    List<User> findEmployeesWhosSubscriptionExpired();
 }

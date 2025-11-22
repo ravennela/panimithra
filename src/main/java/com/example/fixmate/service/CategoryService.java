@@ -8,7 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.example.fixmate.dtos.request.CategoryCreationRequest;
+import com.example.fixmate.dtos.request.UpdateCategoryRequest;
 import com.example.fixmate.dtos.response.CategoryCreationResponse;
+import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.entities.Category;
 import com.example.fixmate.repositories.CategoryRepository;
 
@@ -40,4 +42,46 @@ public class CategoryService {
         return repository.findAll(pageable);
     }
 
+    public CreateSubcategoryResponse deleteCategory(String categoryId) {
+        Category category = repository.findById(categoryId).orElse(null);
+
+        if (category == null) {
+            throw new RuntimeException("No Category Found");
+        }
+        repository.delete(category);
+
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(categoryId);
+        response.setMessage("Category Deleted Successfully");
+        return response;
+    }
+
+    public Category fetchCategoryById(String categoryId) {
+        Category category = repository.findById(categoryId).orElse(null);
+
+        if (category == null) {
+            throw new RuntimeException("No Category Found");
+        }
+        return category;
+    }
+
+    public CreateSubcategoryResponse updateCategory(UpdateCategoryRequest request) {
+        Category category = repository.findById(request.getCategoryId()).orElse(null);
+
+        if (category == null) {
+            throw new RuntimeException("No Category Found");
+        }
+        category.setCategoryName(request.getCategoryName());
+        category.setDescription(request.getDescription());
+        if (request.getIconUrl() != null && !request.getIconUrl().isBlank()) {
+            category.setIconUrl(request.getIconUrl());
+        }
+        category.setStatus(request.getStatus());
+        repository.save(category);
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(category.getId());
+        response.setMessage("Category Updated Successfully");
+        return response;
+
+    }
 }

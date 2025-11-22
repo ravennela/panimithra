@@ -165,4 +165,22 @@ public class UserService {
         response.setMessage("User Deleted Successfully");
         return response;
     }
+
+    public CreateSubcategoryResponse changeUserStatus(String userId, String status) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("No User Found With this Details");
+        }
+
+        System.out.println("status in java" + status.toString());
+
+        user.setStatus(status);
+        userRepository.save(user);
+        System.out.println("user saved");
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(user.getId());
+        System.out.println("user status after " + user.getStatus());
+        response.setMessage("User Status Changed Successfully");
+        return response;
+    }
 }

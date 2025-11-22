@@ -31,7 +31,7 @@ public class CheckSubscriptionCrone {
         log.info("Cron Job executed at utils: {}", LocalDateTime.now());
 
         // Run the subscription expiry check here
-        List<User> expiredUsers = subscriptionRepository.findEmployeesWhosSubscriptionExpired();
+        List<User> expiredUsers = userRepository.findEmployeesWhosSubscriptionExpired();
 
         expiredUsers.forEach(u -> u.setStatus("INACTIVE"));
         userRepository.saveAll(expiredUsers);

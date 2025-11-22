@@ -4,20 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import com.example.fixmate.dtos.request.AddRatingRequest;
 import com.example.fixmate.dtos.request.CreateBookingRequest;
-import com.example.fixmate.dtos.request.CreateSubCategoryRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
-import com.example.fixmate.dtos.response.FetchBookingsResponse;
 import com.example.fixmate.entities.Bookings;
 import com.example.fixmate.entities.ServiceEntity;
 import com.example.fixmate.entities.User;
 import com.example.fixmate.repositories.BookingRepository;
 import com.example.fixmate.repositories.ServiceRepository;
 import com.example.fixmate.repositories.UserRepository;
+import com.google.firebase.messaging.FirebaseMessagingException;
 
 @Service
 public class BookingService {
@@ -29,11 +25,17 @@ public class BookingService {
 
     @Autowired
     ServiceRepository serviceRepository;
+    @Autowired
+    NotificationService notificationService;
 
-    public CreateSubcategoryResponse createBooking(CreateBookingRequest request) {
-        boolean isBooked = bookingRepository.existsByCustomer_IdAndService_IdAndBookingDateAndBookingStatusNot(
-                request.getUserId(), request.getServiceId(), request.getBookingDate(), request.getBookingStatus());
+    public CreateSubcategoryResponse createBooking(CreateBookingRequest request) throws FirebaseMessagingException {
+        boolean isBooked = bookingRepository.existsByCustomer_IdAndService_IdAndBookingDateAndBookingStatus(
+                request.getUserId(), request.getServiceId(), request.getBookingDate(), "PENDING");
+        System.out.println("user id" + request.getUserId() + "serviceid" + request.getServiceId() + "date"
+                + request.getBookingDate() + "status" + request.getBookingStatus());
+        System.out.println("value of booked" + isBooked);
         if (isBooked) {
+            System.out.println("is booked");
             throw new RuntimeException("Booking Already Created In SameDay");
         }
         User user = userRepository.findById(request.getUserId()).orElse(null);
@@ -48,6 +50,8 @@ public class BookingService {
         if (serviceEntity == null) {
             throw new RuntimeException("Service Not Found");
         }
+        String employeeToken = employee.getDeviceToken();
+        String userToken = user.getDeviceToken();
         Bookings bookings = new Bookings();
         bookings.setBookingDate(request.getBookingDate());
         bookings.setBookingStatus(request.getBookingStatus());
@@ -60,6 +64,14 @@ public class BookingService {
         bookingRepository.save(bookings);
         CreateSubcategoryResponse response = new CreateSubcategoryResponse();
         response.setId(bookings.getId());
+        if (userToken != null&&!userToken.isEmpty()) {
+            notificationService.sendNotification(userToken, "Booking Successfull",
+                    "Your Booking Is Successful");
+        }
+        if (employeeToken != null&&!employeeToken.isEmpty()) {
+            notificationService.sendNotification(employeeToken, "New Booking Arrived",
+                    "You Have a New Booking From" + user.getName());
+        }
         response.setMessage("Booking Successfully Created");
         return response;
 
