@@ -15,13 +15,14 @@ import com.google.firebase.messaging.Notification;
 public class NotificationService {
     @Autowired
     UserRepository userRepository;
+
     public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
         Notification notification = Notification
                 .builder()
                 .setTitle(title)
                 .setBody(body)
                 .build();
-
+        System.out.println("Token recieved at sending time" + token);
         Message message = Message.builder()
                 .setToken(token)
                 .setNotification(notification)
@@ -31,15 +32,15 @@ public class NotificationService {
         return FirebaseMessaging.getInstance().send(message);
     }
 
-    public CreateSubcategoryResponse registerToken(String token,String userId){
-        User user=userRepository.findById(userId).orElse(null);
-        if(user==null){
+    public CreateSubcategoryResponse registerToken(String token, String userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
             throw new RuntimeException("No User Found");
         }
-
+        System.out.println("Token Saved" + token);
         user.setDeviceToken(token);
         userRepository.save(user);
-        CreateSubcategoryResponse response=new CreateSubcategoryResponse();
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
         response.setId(userId);
         response.setMessage("Token Saved Successfully");
         return response;

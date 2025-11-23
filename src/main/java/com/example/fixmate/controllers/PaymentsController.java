@@ -130,7 +130,6 @@ public class PaymentsController {
                 subscription.setPaymentId(paymentId);
                 subscription.setPaymentMethod(method);
                 userSubScriptionRepository.save(subscription);
-
                 System.out.println("Subscription updated. New end date: " + newEndDate);
             }
         }

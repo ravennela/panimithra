@@ -64,11 +64,13 @@ public class BookingService {
         bookingRepository.save(bookings);
         CreateSubcategoryResponse response = new CreateSubcategoryResponse();
         response.setId(bookings.getId());
-        if (userToken != null&&!userToken.isEmpty()) {
+        System.out.println("token while booking from user side" + userToken);
+        if (userToken != null && !userToken.isEmpty()) {
             notificationService.sendNotification(userToken, "Booking Successfull",
                     "Your Booking Is Successful");
         }
-        if (employeeToken != null&&!employeeToken.isEmpty()) {
+        System.out.println("token while booking from employee side" + employeeToken);
+        if (employeeToken != null && !employeeToken.isEmpty()) {
             notificationService.sendNotification(employeeToken, "New Booking Arrived",
                     "You Have a New Booking From" + user.getName());
         }
