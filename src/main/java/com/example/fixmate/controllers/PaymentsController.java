@@ -98,40 +98,40 @@ public class PaymentsController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
             }
 
-            if (!"PAID".equals(order.getStatus())) {
-                Subscription subscription = order.getSubscription();
-                long days = subscription.getSubscriptionPlan().getDurationInDays();
+            // if (!"PAID".equals(order.getStatus())) {
+            Subscription subscription = order.getSubscription();
+            long days = subscription.getSubscriptionPlan().getDurationInDays();
 
-                // Update Order
-                order.setStatus("PAID");
-                order.setRazorpayPaymentId(paymentId);
-                order.setUpdatedAt(LocalDateTime.now());
-                orderRepository.save(order);
+            // Update Order
+            order.setStatus("PAID");
+            order.setRazorpayPaymentId(paymentId);
+            order.setUpdatedAt(LocalDateTime.now());
+            orderRepository.save(order);
 
-                // Calculate new end date
-                LocalDate today = LocalDate.now();
-                LocalDate currentEndDate = subscription.getEndDate();
-                LocalDate newEndDate;
+            // Calculate new end date
+            LocalDate today = LocalDate.now();
+            LocalDate currentEndDate = subscription.getEndDate();
+            LocalDate newEndDate;
 
-                if (currentEndDate == null || currentEndDate.isBefore(today)) {
-                    // Expired or new user → Start from today
-                    newEndDate = today.plusDays(days);
-                    subscription.setStartDate(today);
-                } else {
-                    // Active subscription → Extend from current end date
-                    newEndDate = currentEndDate.plusDays(days);
-                    // Don't change startDate - keep original
-                }
-
-                // Update Subscription
-                subscription.setEndDate(newEndDate);
-                subscription.setStatus("ACTIVE");
-                subscription.setRazorpayOrderId(orderId);
-                subscription.setPaymentId(paymentId);
-                subscription.setPaymentMethod(method);
-                userSubScriptionRepository.save(subscription);
-                System.out.println("Subscription updated. New end date: " + newEndDate);
+            if (currentEndDate == null || currentEndDate.isBefore(today)) {
+                // Expired or new user → Start from today
+                newEndDate = today.plusDays(days);
+                subscription.setStartDate(today);
+            } else {
+                // Active subscription → Extend from current end date
+                newEndDate = currentEndDate.plusDays(days);
+                // Don't change startDate - keep original
             }
+
+            // Update Subscription
+            subscription.setEndDate(newEndDate);
+            subscription.setStatus("ACTIVE");
+            subscription.setRazorpayOrderId(orderId);
+            subscription.setPaymentId(paymentId);
+            subscription.setPaymentMethod(method);
+            userSubScriptionRepository.save(subscription);
+            System.out.println("Subscription updated. New end date: " + newEndDate);
+            // }
         }
         System.out.println("Webhook processed");
         return ResponseEntity.ok("Webhook received");
