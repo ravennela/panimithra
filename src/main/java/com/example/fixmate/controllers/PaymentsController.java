@@ -68,7 +68,7 @@ public class PaymentsController {
     public ResponseEntity<String> handleWebhook(
             @RequestHeader("X-Razorpay-Signature") String signature,
             @RequestBody String payload) throws Exception {
-
+        System.out.println("call back inited" + payload.toString() + "--- Sinature " + signature);
         // 1. Verify webhook signature
         if (!verifySignature(payload, signature, webhookSecret)) {
             System.out.println("Invalid signature");
@@ -79,7 +79,7 @@ public class PaymentsController {
         // 2. Parse JSON payload
         JSONObject json = new JSONObject(payload);
         String event = json.getString("event");
-
+        System.out.println("captured Payment");
         if ("payment.captured".equals(event)) {
             JSONObject paymentEntity = json.getJSONObject("payload")
                     .getJSONObject("payment")

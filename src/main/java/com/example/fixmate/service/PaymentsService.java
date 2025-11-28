@@ -83,10 +83,11 @@ public class PaymentsService {
                 "PENDING");
 
         Orders order;
-        if (pendingOrder.isPresent()) {
-            System.out.println("re -usable order id present" + pendingOrder.get().getId());
-            order = pendingOrder.get(); // reuse existing pending order
-        } else {
+        // if (pendingOrder.isPresent()) {
+        //     System.out.println("re -usable order id present" + pendingOrder.get().getId());
+        //     order = pendingOrder.get(); // reuse existing pending order
+        // }
+        // else {
             System.out.println("new razorpay id");
             // 6️⃣ Create new Razorpay order
             String razorOrderId = razorpayService.createOrder((int) amount, "INR", userId);
@@ -96,7 +97,7 @@ public class PaymentsService {
             order.setStatus("PENDING");
             order.setRazorpayOrderId(razorOrderId);
             ordersRepository.save(order);
-        }
+       // }
         // 7️⃣ Return checkout response
         return new CheckoutResponse(
                 order.getRazorpayOrderId(),
