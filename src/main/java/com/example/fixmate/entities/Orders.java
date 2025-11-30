@@ -26,6 +26,7 @@ public class Orders {
     private String razorpaySignature;
     private double amount;
     private String currency = "INR";
+    
 
     private String status; // CREATED / SUCCESS / FAILED / REFUNDED
     private String paymentMethod;
@@ -76,7 +77,8 @@ public class Orders {
         this.amount = amount;
     }
 
-    public String getCurrency() {
+    public String getCurrency()
+     {
         return currency;
     }
 

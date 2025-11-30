@@ -23,15 +23,17 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Stri
         List<Subscription> findSubscriptionsByUserId(@Param("userId") String userId);
 
         @Query("""
-                        SELECT s
-                        FROM Subscription s
-                        WHERE s.employee.id = :userId
-                        AND :date BETWEEN s.startDate AND s.endDate
-                        AND s.status = 'ACTIVE'
+                            SELECT s
+                            FROM Subscription s
+                            WHERE s.employee.id = :userId
+                            AND :date BETWEEN s.startDate AND s.endDate
+                            AND s.status = 'ACTIVE'
+                            ORDER BY s.endDate DESC
                         """)
-        Optional<Subscription> findActiveByEmployee_Id(
+        List<Subscription> findLatestActiveSubscription(
                         @Param("userId") String userId,
                         @Param("date") LocalDate date);
+
         Subscription findTopByEmployee_IdOrderByStartDateDesc(String userId);
 
 }

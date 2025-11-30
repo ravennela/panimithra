@@ -20,6 +20,7 @@ import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.response.CheckoutResponse;
 import com.example.fixmate.entities.Orders;
 import com.example.fixmate.entities.Subscription;
+import com.example.fixmate.entities.SubscriptionPlan;
 import com.example.fixmate.repositories.OrdersRepository;
 import com.example.fixmate.repositories.SubscriptionRepository;
 import com.example.fixmate.service.PaymentsService;
@@ -66,74 +67,113 @@ public class PaymentsController {
 
     @PostMapping("/pay")
     public ResponseEntity<String> handleWebhook(
-            @RequestHeader("X-Razorpay-Signature") String signature,
-            @RequestBody String payload) throws Exception {
-        System.out.println("call back inited" + payload.toString() + "--- Sinature " + signature);
+            @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature,
+            @RequestBody(required = false) String payload) throws Exception {
+
+        // Check if payload or signature is null
+        if (payload == null || signature == null) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Missing payload or signature");
+        }
+
         // 1. Verify webhook signature
+        System.out.println("🔍 Verifying signature...");
         if (!verifySignature(payload, signature, webhookSecret)) {
-            System.out.println("Invalid signature");
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         }
-        System.out.println("Correct signature");
+        System.out.println("✅ Signature verified successfully");
 
         // 2. Parse JSON payload
-        JSONObject json = new JSONObject(payload);
-        String event = json.getString("event");
-        System.out.println("captured Payment");
-        if ("payment.captured".equals(event)) {
-            JSONObject paymentEntity = json.getJSONObject("payload")
-                    .getJSONObject("payment")
-                    .getJSONObject("entity");
-            System.out.println("Payment captured");
+        try {
+            System.out.println("📝 Parsing JSON payload...");
+            JSONObject json = new JSONObject(payload);
+            String event = json.getString("event");
+            System.out.println("📋 Event Type: " + event);
 
-            String orderId = paymentEntity.getString("order_id");
-            String paymentId = paymentEntity.getString("id");
-            String method = paymentEntity.getString("method");
+            if ("payment.captured".equals(event)) {
+                System.out.println("💰 Processing payment.captured event...");
 
-            // 3. Lookup order by Razorpay Order ID
-            Orders order = orderRepository.findByRazorpayOrderId(orderId).orElse(null);
+                JSONObject paymentEntity = json.getJSONObject("payload")
+                        .getJSONObject("payment")
+                        .getJSONObject("entity");
 
-            if (order == null) {
-                System.out.println("Order not found: " + orderId);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
-            }
+                String orderId = paymentEntity.getString("order_id");
+                String paymentId = paymentEntity.getString("id");
+                String method = paymentEntity.getString("method");
 
-            // if (!"PAID".equals(order.getStatus())) {
-            Subscription subscription = order.getSubscription();
-            long days = subscription.getSubscriptionPlan().getDurationInDays();
+                // 3. Lookup order by Razorpay Order ID
+                System.out.println("🔍 Looking up order in database...");
+                Orders order = orderRepository.findByRazorpayOrderId(orderId).orElse(null);
 
-            // Update Order
-            order.setStatus("PAID");
-            order.setRazorpayPaymentId(paymentId);
-            order.setUpdatedAt(LocalDateTime.now());
-            orderRepository.save(order);
+                if (order == null) {
+                    System.err.println("❌ ERROR: Order not found in database!");
+                    System.err.println("   Razorpay Order ID: " + orderId);
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Order not found");
+                }
 
-            // Calculate new end date
-            LocalDate today = LocalDate.now();
-            LocalDate currentEndDate = subscription.getEndDate();
-            LocalDate newEndDate;
+                System.out.println("✅ Order found: " + order.getId());
 
-            if (currentEndDate == null || currentEndDate.isBefore(today)) {
-                // Expired or new user → Start from today
-                newEndDate = today.plusDays(days);
-                subscription.setStartDate(today);
+                Subscription subscription = order.getSubscription();
+                if (subscription == null) {
+                    System.err.println("❌ ERROR: No subscription linked to order!");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body("No subscription found");
+                }
+                long days = subscription.getSubscriptionPlan().getDurationInDays();
+
+                // Update Order
+                System.out.println("💾 Updating order status to PAID...");
+                order.setStatus("PAID");
+                order.setRazorpayPaymentId(paymentId);
+                order.setUpdatedAt(LocalDateTime.now());
+                orderRepository.save(order);
+                System.out.println("✅ Order updated successfully");
+
+                // Calculate new end date
+                LocalDate today = LocalDate.now();
+                LocalDate currentEndDate = subscription.getEndDate();
+                LocalDate newEndDate;
+
+                if (currentEndDate == null || currentEndDate.isBefore(today)) {
+                    // Expired or new user → Start from today
+                    newEndDate = today.plusDays(days);
+                    subscription.setStartDate(today);
+
+                } else {
+                    // Active subscription → Extend from current end date
+                    newEndDate = currentEndDate.plusDays(days);
+                    System.out.println("   Active subscription - extending from current end date");
+                }
+
+                System.out.println("   New End Date: " + newEndDate);
+
+                // Update Subscription
+                System.out.println("💾 Updating subscription...");
+                subscription.setEndDate(newEndDate);
+                subscription.setStatus("ACTIVE");
+                subscription.setRazorpayOrderId(orderId);
+                subscription.setPaymentId(paymentId);
+                subscription.setPaymentMethod(method);
+                userSubScriptionRepository.save(subscription);
+                System.out.println("✅ Subscription updated successfully!");
+                System.out.println("=====================================================");
+                System.out.println("🎉 WEBHOOK PROCESSED SUCCESSFULLY");
+                System.out.println("=====================================================");
             } else {
-                // Active subscription → Extend from current end date
-                newEndDate = currentEndDate.plusDays(days);
-                // Don't change startDate - keep original
+                System.out.println("ℹ️ Event type '" + event + "' - No action taken");
             }
 
-            // Update Subscription
-            subscription.setEndDate(newEndDate);
-            subscription.setStatus("ACTIVE");
-            subscription.setRazorpayOrderId(orderId);
-            subscription.setPaymentId(paymentId);
-            subscription.setPaymentMethod(method);
-            userSubScriptionRepository.save(subscription);
-            System.out.println("Subscription updated. New end date: " + newEndDate);
-            // }
+        } catch (Exception e) {
+            System.err.println("❌ ERROR PROCESSING WEBHOOK!");
+            System.err.println("   Error Type: " + e.getClass().getName());
+            System.err.println("   Error Message: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing webhook: " + e.getMessage());
         }
-        System.out.println("Webhook processed");
+
         return ResponseEntity.ok("Webhook received");
     }
 

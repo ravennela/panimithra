@@ -3,6 +3,9 @@ package com.example.fixmate.service;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,6 +40,9 @@ public class PaymentsService {
     @Autowired
     OrdersRepository ordersRepository;
 
+    @Value("${razorpay.api.secret}")
+    private String apiSecret;
+
     @Transactional
     public CheckoutResponse createCheckout(String userId, String planid) throws RazorpayException {
 
@@ -52,13 +58,16 @@ public class PaymentsService {
         Subscription subscription;
 
         // 1️⃣ Check for an active subscription
-        Optional<Subscription> activeSubOpt = subscriptionRepository.findActiveByEmployee_Id(userId, LocalDate.now());
+        // Optional<Subscription> activeSubOpt =
+        // subscriptionRepository.findActiveByEmployee_Id(userId, LocalDate.now());
+        Optional<Subscription> activeSubOpt = subscriptionRepository
+                .findLatestActiveSubscription(userId, LocalDate.now()).stream().findFirst();
 
         if (activeSubOpt.isPresent()) {
-            // Found an active subscription → don’t create a new one
+            // Found an active subscription → don't create a new one
             subscription = activeSubOpt.get();
 
-            // (At this stage, don’t modify dates yet — only extend after payment success)
+            // (At this stage, don't modify dates yet — only extend after payment success)
         } else {
             // 2️⃣ No active subscription → check if there is a pending one
             Subscription lastSub = subscriptionRepository.findTopByEmployee_IdOrderByStartDateDesc(userId);
@@ -84,20 +93,21 @@ public class PaymentsService {
 
         Orders order;
         // if (pendingOrder.isPresent()) {
-        //     System.out.println("re -usable order id present" + pendingOrder.get().getId());
-        //     order = pendingOrder.get(); // reuse existing pending order
+        // System.out.println("re -usable order id present" +
+        // pendingOrder.get().getId());
+        // order = pendingOrder.get(); // reuse existing pending order
         // }
         // else {
-            System.out.println("new razorpay id");
-            // 6️⃣ Create new Razorpay order
-            String razorOrderId = razorpayService.createOrder((int) amount, "INR", userId);
-            order = new Orders();
-            order.setSubscription(subscription);
-            order.setAmount(amount);
-            order.setStatus("PENDING");
-            order.setRazorpayOrderId(razorOrderId);
-            ordersRepository.save(order);
-       // }
+        System.out.println("new razorpay id");
+        // 6️⃣ Create new Razorpay order
+        String razorOrderId = razorpayService.createOrder((int) amount, "INR", userId);
+        order = new Orders();
+        order.setSubscription(subscription);
+        order.setAmount(amount);
+        order.setStatus("PENDING");
+        order.setRazorpayOrderId(razorOrderId);
+        ordersRepository.save(order);
+        // }
         // 7️⃣ Return checkout response
         return new CheckoutResponse(
                 order.getRazorpayOrderId(),
@@ -106,5 +116,38 @@ public class PaymentsService {
                 plan.getId(),
                 order.getStatus());
 
+    }
+
+    /**
+     * Generate signature for Razorpay payment verification
+     * This verifies that the payment response from Razorpay is authentic
+     * 
+     * @param orderId   Razorpay order ID
+     * @param paymentId Razorpay payment ID
+     * @return Generated signature
+     */
+    public String generateSignature(String orderId, String paymentId) {
+        try {
+            String payload = orderId + "|" + paymentId;
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secret_key = new SecretKeySpec(apiSecret.getBytes(), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+
+            byte[] hash = sha256_HMAC.doFinal(payload.getBytes());
+
+            // Convert byte array to hex string
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating signature: " + e.getMessage(), e);
+        }
     }
 }
