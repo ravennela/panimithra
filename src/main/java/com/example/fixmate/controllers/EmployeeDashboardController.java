@@ -46,5 +46,4 @@ public class EmployeeDashboardController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
-
 }

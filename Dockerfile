@@ -1,24 +1,31 @@
+# ----------- Build Stage -----------
+FROM eclipse-temurin:17-jdk AS build
 
-# Step 1: Use an official JDK image
-FROM eclipse-temurin:17-jdk
-
-# Step 2: Set working directory
 WORKDIR /app
 
-# Step 3: Copy pom.xml and download dependencies (optional optimization)
-COPY pom.xml ./
+# Copy dependency files first
+COPY pom.xml .
+COPY mvnw .
 COPY .mvn .mvn
-COPY mvnw ./
+
+RUN chmod +x mvnw
 RUN ./mvnw dependency:go-offline -B
 
-# Step 4: Copy the entire project
-COPY . .
+# Copy source code
+COPY src src
+COPY src/main/resources/panimithra-service-account.json /app/
 
-# Step 5: Build the jar file
+# Build the JAR
 RUN ./mvnw clean package -DskipTests
 
-# Step 6: Expose the port (Render uses PORT env)
-EXPOSE 8080
 
-# Step 7: Run the application
-CMD ["java", "-jar", "target/fixmate-0.0.1-SNAPSHOT.jar"]
+# ----------- Runtime Stage -----------
+FROM eclipse-temurin:17-jdk
+
+WORKDIR /app
+
+# Copy only the JAR from the build stage
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]

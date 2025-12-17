@@ -13,4 +13,6 @@ public interface SubscriptionPlanRepository extends JpaRepository<SubscriptionPl
 
     @Query("SELECT s FROM SubscriptionPlan s WHERE s.status= :status")
     List<SubscriptionPlan> getOnlyActivePlans(@Param("status") String status);
+
+    
 }

@@ -10,88 +10,112 @@ import com.example.fixmate.entities.ServiceEntity;
 
 public class ServiceSpecification {
 
-    public static Specification<ServiceEntity> filter(String categoryId, String serviceName, Double minPrice,
-            Double maxPrice, Double minRating, String categoryName, String subCategoryName, Double latitude,
-            Double longitude, Double radious) {
-        return (root, query, cb) -> {
-            String status = "ACTIVE";
-            List<Predicate> predicates = new ArrayList<>();
-            Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
-            Join<Object, Object> employeeJoin = root.join("employee", JoinType.INNER);
+    public static Specification<ServiceEntity> filter(
+        String categoryId,
+        String serviceName,
+        Double minPrice,
+        Double maxPrice,
+        Double minRating,
+        String categoryName,
+        String subCategoryName,
+        Double latitude,
+        Double longitude,Double radions) {
 
-            if (latitude != null && longitude != null && radious != null) {
-                Path<Double> empLat = employeeJoin.get("latitude");
-                Path<Double> empLng = employeeJoin.get("longitude");
+    return (root, query, cb) -> {
 
-                // Use cb.literal(6371.0) for Double literal
-                Expression<Double> acosExpression = cb.function(
-                        "acos",
-                        Double.class,
-                        cb.sum(
-                                cb.prod(
-                                        cb.function("cos", Double.class,
-                                                cb.function("radians", Double.class, cb.literal(latitude))),
-                                        cb.prod(
-                                                cb.function("cos", Double.class,
-                                                        cb.function("radians", Double.class, empLat)),
-                                                cb.function("cos", Double.class,
-                                                        cb.diff(
-                                                                cb.function("radians", Double.class, empLng),
-                                                                cb.function("radians", Double.class,
-                                                                        cb.literal(longitude)))))),
-                                cb.prod(
-                                        cb.function("sin", Double.class,
-                                                cb.function("radians", Double.class, cb.literal(latitude))),
-                                        cb.function("sin", Double.class,
-                                                cb.function("radians", Double.class, empLat)))));
+        String status = "ACTIVE";
+        List<Predicate> predicates = new ArrayList<>();
 
-                // 👇 Cast the result explicitly to Expression<Double>
-                Expression<Double> distanceExpr = cb.prod(cb.literal(6371.0), (Expression<Double>) acosExpression);
+        Join<Object, Object> categoryJoin = root.join("category", JoinType.LEFT);
+        Join<Object, Object> employeeJoin = root.join("employee", JoinType.INNER);
 
-                predicates.add(cb.lessThan(distanceExpr, radious));
+        // -------------------------------
+        // 🚀 DISTANCE SORTING (NEAREST FIRST)
+        // -------------------------------
+        if (latitude != null && longitude != null) {
+
+            Path<Double> empLat = employeeJoin.get("latitude");
+            Path<Double> empLng = employeeJoin.get("longitude");
+
+            System.out.println("latitude of emp"+employeeJoin.get("latitude"));
+            System.out.println("longitude of emp"+empLng.toString());
 
 
-            }
+            Expression<Double> distanceExpr = cb.prod(
+                    cb.literal(6371.0),
+                    cb.function(
+                            "acos",
+                            Double.class,
+                            cb.sum(
+                                    cb.prod(
+                                            cb.function("cos", Double.class,
+                                                    cb.function("radians", Double.class, cb.literal(latitude))),
+                                            cb.prod(
+                                                    cb.function("cos", Double.class,
+                                                            cb.function("radians", Double.class, empLat)),
+                                                    cb.function("cos", Double.class,
+                                                            cb.diff(
+                                                                    cb.function("radians", Double.class, empLng),
+                                                                    cb.function("radians", Double.class,
+                                                                            cb.literal(longitude)))))),
+                                    cb.prod(
+                                            cb.function("sin", Double.class,
+                                                    cb.function("radians", Double.class, cb.literal(latitude))),
+                                            cb.function("sin", Double.class,
+                                                    cb.function("radians", Double.class, empLat)))))
+            );
+              System.out.println("distance cal"+distanceExpr.toString());
+            // 🔥 Sort by nearest distance in ascending order
+            query.orderBy(cb.asc(distanceExpr));
+        }
 
-            if (categoryId != null && !categoryId.isEmpty()) {
-                predicates.add(cb.equal(categoryJoin.get("id"), categoryId));
-            }
+        // -------------------------------
+        // OTHER FILTERS (category, price, etc.)
+        // -------------------------------
 
-            if (categoryName != null && !categoryName.isEmpty()) {
-                predicates.add(
-                        cb.like(cb.lower(categoryJoin.get("categoryName")), "%" + categoryName.toLowerCase() + "%"));
-            }
-            Join<Object, Object> subCategoryJoin = root.join("subCategory", JoinType.LEFT);
+        if (categoryId != null && !categoryId.isEmpty()) {
+            predicates.add(cb.equal(categoryJoin.get("id"), categoryId));
+        }
 
-            if (subCategoryName != null && !subCategoryName.isEmpty()) {
-                predicates
-                        .add(cb.like(cb.lower(subCategoryJoin.get("subCategoryName")),
-                                "%" + subCategoryName.toLowerCase() + "%"));
-            }
-            predicates.add(cb.equal(cb.lower(employeeJoin.get("status")), status.toLowerCase()));
+        if (categoryName != null && !categoryName.isEmpty()) {
+            predicates.add(cb.like(
+                    cb.lower(categoryJoin.get("categoryName")),
+                    "%" + categoryName.toLowerCase() + "%"));
+        }
 
-            if (serviceName != null && !serviceName.isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("name")), "%" + serviceName.toLowerCase() + "%"));
-            }
+        Join<Object, Object> subCategoryJoin = root.join("subCategory", JoinType.LEFT);
+        if (subCategoryName != null && !subCategoryName.isEmpty()) {
+            predicates.add(cb.like(
+                    cb.lower(subCategoryJoin.get("subCategoryName")),
+                    "%" + subCategoryName.toLowerCase() + "%"));
+        }
 
-            if (minPrice != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
-            }
-            if (maxPrice != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+        // only ACTIVE employees
+        predicates.add(cb.equal(cb.lower(employeeJoin.get("status")), status.toLowerCase()));
 
-            }
+        if (serviceName != null && !serviceName.isEmpty()) {
+            predicates.add(cb.like(
+                    cb.lower(root.get("name")),
+                    "%" + serviceName.toLowerCase() + "%"));
+        }
 
-            if (minRating != null) {
-                Subquery<Double> ratingSubquery = query.subquery(Double.class);
-                Root<Review> reviewRoot = ratingSubquery.from(Review.class);
-                ratingSubquery.select(cb.avg(reviewRoot.get("rating")));
-                ratingSubquery.where(cb.equal(reviewRoot.get("service"), root));
-                predicates.add(cb.greaterThanOrEqualTo(ratingSubquery, minRating));
-            }
-            return cb.and(predicates.toArray(new Predicate[0]));
+        if (minPrice != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
+        }
+        if (maxPrice != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
+        }
 
-        };
+        if (minRating != null) {
+            Subquery<Double> ratingSubquery = query.subquery(Double.class);
+            Root<Review> reviewRoot = ratingSubquery.from(Review.class);
 
-    }
+            ratingSubquery.select(cb.avg(reviewRoot.get("rating")));
+            ratingSubquery.where(cb.equal(reviewRoot.get("service"), root));
+
+            predicates.add(cb.greaterThanOrEqualTo(ratingSubquery, minRating));
+        }
+        return cb.and(predicates.toArray(new Predicate[0]));
+    };
+ }
 }

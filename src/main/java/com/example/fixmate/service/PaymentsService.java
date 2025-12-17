@@ -6,7 +6,6 @@ import java.util.Optional;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,9 +20,6 @@ import com.example.fixmate.repositories.OrdersRepository;
 import com.example.fixmate.repositories.SubscriptionPlanRepository;
 import com.example.fixmate.repositories.SubscriptionRepository;
 import com.example.fixmate.repositories.UserRepository;
-import com.example.fixmate.utils.exceptions.InvalidRequestException;
-import com.razorpay.Order;
-import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 
 @Service
@@ -106,7 +102,13 @@ public class PaymentsService {
         order.setAmount(amount);
         order.setStatus("PENDING");
         order.setRazorpayOrderId(razorOrderId);
+        order.setPlan(plan);
         ordersRepository.save(order);
+
+        System.out.println("order price" + order.getPlan().getPrice());
+
+        // need to insert plan info here.
+
         // }
         // 7️⃣ Return checkout response
         return new CheckoutResponse(

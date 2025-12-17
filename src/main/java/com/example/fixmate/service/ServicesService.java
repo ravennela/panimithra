@@ -30,6 +30,7 @@ import com.example.fixmate.repositories.UserRepository;
 
 @Service
 public class ServicesService {
+
     @Autowired
     CategoryRepository categoryRepository;
 
@@ -234,6 +235,8 @@ public class ServicesService {
         response.setEmployeeId(service.getEmployee().getId());
         response.setAddInfoOne(service.getAddInfoOne());
         response.setAddInfoTwo(service.getAddInfoTwo());
+        response.setDuration(service.getDuration()
+        );
         response.setCategoryName(service.getCategory().getCategoryName());
         response.setSubCategoryName(service.getSubCategory().getSubCategoryName());
         response.setAddInfoThree(service.getAddInfoThree());
@@ -252,8 +255,9 @@ public class ServicesService {
     }
 
     public static double calculateAverageRating(List<Review> reviews) {
-        if (reviews == null || reviews.isEmpty())
+        if (reviews == null || reviews.isEmpty()) {
             return 0.0;
+        }
         return reviews.stream()
                 .mapToDouble(Review::getRating)
                 .average()

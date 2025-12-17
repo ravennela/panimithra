@@ -6,6 +6,7 @@ import java.util.List;
 import com.example.fixmate.entities.Review;
 
 public class ServiceByIdResponse {
+
     private String serviceId;
     private String serviceName;
     private String description;
@@ -23,6 +24,7 @@ public class ServiceByIdResponse {
     private String address;
     private String iconUrl;
     private LocalTime timeIn;
+    private int duration;
 
     public LocalTime getTimeIn() {
         return timeIn;
@@ -238,6 +240,14 @@ public class ServiceByIdResponse {
 
     public void setReviews(List<Review> reviews) {
         this.reviews = reviews;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
     }
 
 }

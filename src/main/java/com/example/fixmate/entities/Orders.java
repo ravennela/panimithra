@@ -26,7 +26,12 @@ public class Orders {
     private String razorpaySignature;
     private double amount;
     private String currency = "INR";
-    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id")
+    private SubscriptionPlan plan;
 
     private String status; // CREATED / SUCCESS / FAILED / REFUNDED
     private String paymentMethod;
@@ -77,8 +82,7 @@ public class Orders {
         this.amount = amount;
     }
 
-    public String getCurrency()
-     {
+    public String getCurrency() {
         return currency;
     }
 
@@ -135,11 +139,15 @@ public class Orders {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subscription_id")
-    private Subscription subscription;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private User employee;
+
+    public SubscriptionPlan getPlan() {
+        return plan;
+    }
+
+    public void setPlan(SubscriptionPlan plan) {
+        this.plan = plan;
+    }
 
 }

@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import com.example.fixmate.dtos.request.CreateBookingRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.entities.Bookings;
@@ -17,6 +18,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 
 @Service
 public class BookingService {
+
     @Autowired
     BookingRepository bookingRepository;
 
@@ -31,9 +33,7 @@ public class BookingService {
     public CreateSubcategoryResponse createBooking(CreateBookingRequest request) throws FirebaseMessagingException {
         boolean isBooked = bookingRepository.existsByCustomer_IdAndService_IdAndBookingDateAndBookingStatus(
                 request.getUserId(), request.getServiceId(), request.getBookingDate(), "PENDING");
-        System.out.println("user id" + request.getUserId() + "serviceid" + request.getServiceId() + "date"
-                + request.getBookingDate() + "status" + request.getBookingStatus());
-        System.out.println("value of booked" + isBooked);
+
         if (isBooked) {
             System.out.println("is booked");
             throw new RuntimeException("Booking Already Created In SameDay");
@@ -87,7 +87,7 @@ public class BookingService {
         if (user == null) {
             throw new RuntimeException("User Not Found");
         }
-        if (role == "" || role == null) {
+        if ("".equals(role) || role == null) {
             throw new RuntimeException("Role Is Required");
         }
         if ("ADMIN".equals(role)) {
@@ -103,11 +103,29 @@ public class BookingService {
 
     }
 
-    public CreateSubcategoryResponse updateBooking(String status, String bookingId) {
+    public CreateSubcategoryResponse updateBooking(String status, String bookingId) throws FirebaseMessagingException {
 
         Bookings bookings = bookingRepository.findById(bookingId).orElse(null);
         if (bookings == null) {
             throw new RuntimeException("No Bookings Found with this Id");
+        }
+        User user = userRepository.findById(bookings.getCustomer().getId()).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User Not Found");
+        }
+        User employee = userRepository.findById(bookings.getEmployee().getId()).orElse(null);
+        if (employee == null) {
+            throw new RuntimeException("Employee Not Found");
+        }
+
+        String userToken = user.getDeviceToken();
+        String employeeToken = employee.getDeviceToken();
+        if (userToken != null && !userToken.isEmpty()) {
+            notificationService.sendNotification(userToken, "Bokking" + status.toString(), "Your Booking Has Been " + status.toString());
+        }
+
+        if (employeeToken != null && !employeeToken.isEmpty()) {
+            notificationService.sendNotification(employeeToken, "Bokking" + status.toString(), "Your Booking Has Been " + status.toString());
         }
         bookings.setBookingStatus(status);
         bookingRepository.save(bookings);

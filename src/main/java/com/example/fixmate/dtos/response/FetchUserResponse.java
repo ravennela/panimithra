@@ -19,11 +19,16 @@ public record FetchUserResponse(
         String pinCode,
         String primaryService,
         int experiance,
-        String shortBio) {
+        String shortBio,
+        double latitude,
+        double longitude
+        ) {
+
     public static FetchUserResponse fromEntity(User k) {
+
         return new FetchUserResponse(k.getId(), k.getName(), k.getStatus(), k.getRole(), k.getEmailId(),
                 k.getContactNumber(), k.getProfileImageUrl(), k.getGender(), k.getDateOfBirth(), k.getCity(),
-                k.getState(), k.getPincode(), k.getPrimaryService(), k.getExperiance(), k.getShortBio());
+                k.getState(), k.getPincode(), k.getPrimaryService(), k.getExperiance(), k.getShortBio(), k.getLatitude(), k.getLongitude());
 
     }
 }

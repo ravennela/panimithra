@@ -49,6 +49,7 @@ public class ServiceEntity {
     private String availableStartTimings;
     private String availableEndTiming;
     private String addInfoOne;
+    @Column(length = 1000)
     private String iconUrl;
     private LocalTime timeIn;
 

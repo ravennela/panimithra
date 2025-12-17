@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RestController
 @RequestMapping("/service")
 public class ServiceController {
+
     @Autowired
     ServicesService service;
 
@@ -147,17 +148,15 @@ public class ServiceController {
             @RequestParam(required = false) Double latitude,
             @RequestParam(required = false) Double longitude,
             @RequestParam(required = false) Double radious,
-
             Pageable pageable) {
         try {
             Page<ServiceEntity> results = service.searchServices(
                     categoryId, serviceName, minPrice, maxPrice, minRating, pageable, categoryName, subCategoryName,
-                    latitude, longitude, radious);
+                    latitude, longitude, 100.0);
 
             List<SearchServiceResponse> data = results.getContent().stream()
                     .map(SearchServiceResponse::fromEntity)
                     .toList();
-
             Map<String, Object> output = new HashMap<>();
             output.put("data", data);
             output.put("currentPage", results.getNumber());
@@ -184,8 +183,9 @@ public class ServiceController {
         }
 
         for (String sortParam : sort) {
-            if (sortParam == null || sortParam.isBlank())
+            if (sortParam == null || sortParam.isBlank()) {
                 continue;
+            }
 
             String[] parts = sortParam.split(",");
             String field = parts[0].trim();

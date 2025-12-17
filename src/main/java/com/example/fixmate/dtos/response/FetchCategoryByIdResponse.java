@@ -7,7 +7,7 @@ public record FetchCategoryByIdResponse(
         String categoryName,
         String status,
         String iconUrl,
-        String description) {
+        String description) {   
     public static FetchCategoryByIdResponse fromEntity(Category category) {
         return new FetchCategoryByIdResponse(category.getId(), category.getCategoryName(), category.getStatus(),
                 category.getIconUrl(), category.getDescription());

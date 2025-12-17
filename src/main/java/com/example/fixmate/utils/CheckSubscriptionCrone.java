@@ -15,6 +15,7 @@ import com.example.fixmate.repositories.UserRepository;
 
 @Component
 public class CheckSubscriptionCrone {
+
     @Autowired
     SubscriptionRepository subscriptionRepository;
     @Autowired
@@ -26,7 +27,7 @@ public class CheckSubscriptionCrone {
         log.info("MyCronJob bean created utils"); // This will print at startup
     }
 
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 0 */6 * * *")
     public void runJob() {
         log.info("Cron Job executed at utils: {}", LocalDateTime.now());
 
