@@ -35,6 +35,7 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
                         "WHERE MONTH(s.createdAt) = :month " +
                         "AND YEAR(s.createdAt) = :year " +
                         "AND s.bookingStatus = :status")
+                        
         Double revenueByTheCurrentMonth(@Param("month") int month,
                         @Param("year") int year,
                         @Param("status") String status);

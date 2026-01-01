@@ -13,7 +13,7 @@ RUN ./mvnw dependency:go-offline -B
 
 # Copy source code
 COPY src src
-COPY src/main/resources/panimithra-service-account.json /app/
+
 
 # Build the JAR
 RUN ./mvnw clean package -DskipTests

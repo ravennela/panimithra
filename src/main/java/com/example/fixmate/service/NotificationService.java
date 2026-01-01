@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.entities.User;
 import com.example.fixmate.repositories.UserRepository;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -13,16 +14,25 @@ import com.google.firebase.messaging.Notification;
 
 @Service
 public class NotificationService {
+
     @Autowired
     UserRepository userRepository;
 
-    public String sendNotification(String token, String title, String body) throws FirebaseMessagingException {
-        Notification notification = Notification
-                .builder()
+    @Autowired
+    FirebaseApp firebaseApp;
+
+    public String sendNotification(String token, String title, String body)
+            throws FirebaseMessagingException {
+
+        if (FirebaseApp.getApps().isEmpty()) {
+            throw new IllegalStateException("FirebaseApp is not initialized");
+        }
+
+        Notification notification = Notification.builder()
                 .setTitle(title)
                 .setBody(body)
                 .build();
-        System.out.println("Token recieved at sending time" + token);
+
         Message message = Message.builder()
                 .setToken(token)
                 .setNotification(notification)

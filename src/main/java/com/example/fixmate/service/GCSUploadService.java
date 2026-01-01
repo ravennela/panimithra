@@ -33,7 +33,7 @@ public class GCSUploadService {
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
                 .setContentType(file.getContentType())
                 .build();
-        storage.create(blobInfo, file.getBytes());
+        storage.create(blobInfo, file.getInputStream());
         String publicUrl = String.format(
                 "https://storage.googleapis.com/%s/%s",
                 bucketName,

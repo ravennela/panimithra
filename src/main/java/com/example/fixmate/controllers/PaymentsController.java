@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -29,8 +28,9 @@ import com.razorpay.Utils;
 import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping("/webhook")
+@RequestMapping("/payments")
 public class PaymentsController {
+
     @Autowired
     PaymentsService paymentsService;
 
@@ -43,7 +43,6 @@ public class PaymentsController {
     private SubscriptionRepository userSubScriptionRepository;
 
     @PostMapping("/checkout")
-    @PreAuthorize("hasAuthority('EMPLOYEE')")
     public ResponseEntity<?> createCheckout(@RequestParam String userid, @RequestParam String planId) {
         try {
             CheckoutResponse response = paymentsService.createCheckout(userid, planId);
@@ -69,6 +68,20 @@ public class PaymentsController {
     public ResponseEntity<String> handleWebhook(
             @RequestHeader(value = "X-Razorpay-Signature", required = false) String signature,
             @RequestBody(required = false) String payload) throws Exception {
+
+        // TEMP DEBUG — REMOVE AFTER FIX
+        if (webhookSecret == null) {
+            System.out.println("❌ WEBHOOK SECRET IS NULL");
+        } else {
+            System.out.println("WEBHOOK SECRET RAW = [" + webhookSecret + "]");
+            System.out.println("✅ WEBHOOK SECRET LOADED, LENGTH = " + webhookSecret.length());
+            for (int i = 0; i < webhookSecret.length(); i++) {
+                System.out.println(
+                        "char[" + i + "] = '" + webhookSecret.charAt(i) + "' ("
+                        + (int) webhookSecret.charAt(i) + ")"
+                );
+            }
+        }
         System.out.println("api recieved");
 
         if (payload == null || signature == null) {
@@ -77,7 +90,7 @@ public class PaymentsController {
         }
         System.out.println("signature verified");
         // Verify signature
-        if (!verifySignature(payload, signature, webhookSecret)) {
+        if (!verifySignature(payload, signature, webhookSecret.trim())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         }
         System.out.println("Captured");

@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.data.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.request.AuthRequest;
 import com.example.fixmate.dtos.request.CreateUserRequest;
+import com.example.fixmate.dtos.request.ResetBeforeAuthRequest;
+import com.example.fixmate.dtos.request.ResetPasswordRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.dtos.response.CreateUserResponse;
 import com.example.fixmate.dtos.response.FetchUserResponse;
@@ -35,6 +40,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/auth")
 public class UserController {
+
     @Autowired
     UserService service;
 
@@ -129,8 +135,9 @@ public class UserController {
         }
 
         for (String sortParam : sort) {
-            if (sortParam == null || sortParam.isBlank())
+            if (sortParam == null || sortParam.isBlank()) {
                 continue;
+            }
             String[] parts = sortParam.split(",");
             String field = parts[0].trim();
             String direction = (parts.length > 1 ? parts[1].trim() : "asc");
@@ -201,6 +208,72 @@ public class UserController {
     public ResponseEntity<?> changeUserStatus(@RequestParam String userId, @RequestParam String status) {
         try {
             CreateSubcategoryResponse response = service.changeUserStatus(userId, status);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @GetMapping("/faq")
+    public ResponseEntity<?> faqController() {
+        try {
+            List<HashMap<String, String>> data = service.faqService();
+            return ResponseEntity.ok(data);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> changePassword(@RequestBody ResetPasswordRequest body) {
+        try {
+            CreateSubcategoryResponse response = service.changePassword(body);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception exception) {
+            ApiErrorDto response = new ApiErrorDto();
+            System.out.println(exception.getStackTrace());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.setError(exception.getMessage());
+            System.out.println(exception.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @PostMapping("/reset-before-auth")
+    public ResponseEntity<?> resetBeforeAuth(@RequestBody ResetBeforeAuthRequest body) {
+        try {
+            CreateSubcategoryResponse response = service.resetBeforeAuth(body);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException exception) {
             ApiErrorDto response = new ApiErrorDto();

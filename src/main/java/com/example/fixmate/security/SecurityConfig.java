@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
+
     @Autowired
     private JwtFilter jwtFilter;
     @Autowired
@@ -31,9 +32,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/webhook/**").permitAll()
-
-                        .anyRequest().authenticated())
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/payments/pay").permitAll()
+                .requestMatchers("/payments/checkout").permitAll()
+                .requestMatchers("/payments/**").authenticated()
+                .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

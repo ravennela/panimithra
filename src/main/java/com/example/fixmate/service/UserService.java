@@ -1,6 +1,8 @@
 package com.example.fixmate.service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,8 @@ import org.springframework.stereotype.Service;
 import com.example.fixmate.dtos.custom.UserSpecifications;
 import com.example.fixmate.dtos.request.AuthRequest;
 import com.example.fixmate.dtos.request.CreateUserRequest;
-import com.example.fixmate.dtos.response.AuthResponse;
+import com.example.fixmate.dtos.request.ResetBeforeAuthRequest;
+import com.example.fixmate.dtos.request.ResetPasswordRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.dtos.response.CreateUserResponse;
 import com.example.fixmate.dtos.response.GetUserResponse;
@@ -32,6 +35,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
+
     @Autowired
     UserRepository userRepository;
 
@@ -173,7 +177,6 @@ public class UserService {
         }
 
         System.out.println("status in java" + status.toString());
-
         user.setStatus(status);
         userRepository.save(user);
         System.out.println("user saved");
@@ -181,6 +184,59 @@ public class UserService {
         response.setId(user.getId());
         System.out.println("user status after " + user.getStatus());
         response.setMessage("User Status Changed Successfully");
+        return response;
+    }
+
+    public List<HashMap<String, String>> faqService() {
+        List<HashMap<String, String>> data = new ArrayList<>();
+        HashMap<String, String> faq1 = new HashMap<>();
+        faq1.put("question", "How do I create an account?");
+        faq1.put("answer", "Sign up using your mobile number.");
+
+        HashMap<String, String> faq2 = new HashMap<>();
+        faq2.put("question", "How does cashback work?");
+        faq2.put("answer", "Cashback is credited after confirmation.");
+
+        data.add(faq1);
+        data.add(faq2);
+        return data;
+    }
+
+    public CreateSubcategoryResponse changePassword(ResetPasswordRequest request) {
+        User user = userRepository.findById(request.getUserId()).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("No User Found With this Details");
+        }
+
+        String currentDbPassString = user.getPassword();
+        if (currentDbPassString.equals(request.getCurrentPassword())) {
+            user.setPassword(request.getNewPassword());
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Incorrect Password");
+        }
+
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(user.getId());
+        response.setMessage("Password Updated Successfully");
+        return response;
+    }
+
+    public CreateSubcategoryResponse resetBeforeAuth(ResetBeforeAuthRequest request) {
+        User user = userRepository.findByEmailId(request.getEmailId());
+        if (user == null) {
+            throw new RuntimeException("No Email Found With this Details");
+        }
+        String currentDbPassString = user.getPassword();
+        if (currentDbPassString.equals(request.getCurrentPassword())) {
+            user.setPassword(request.getNewPassword());
+            userRepository.save(user);
+        } else {
+            throw new RuntimeException("Incorrect Password");
+        }
+        CreateSubcategoryResponse response = new CreateSubcategoryResponse();
+        response.setId(user.getId());
+        response.setMessage("Password Updated Successfully");
         return response;
     }
 }

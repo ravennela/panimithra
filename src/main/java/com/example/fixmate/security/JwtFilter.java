@@ -3,8 +3,6 @@ package com.example.fixmate.security;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,8 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.example.fixmate.utils.JwtUtil;
 import com.example.fixmate.utils.exceptions.UnAutherizedException;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,37 +25,32 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtil jwtUtil;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain)
             throws ServletException, IOException {
-
-        String path = request.getRequestURI();
-
-        // Skip JWT check for public endpoints
-
         String authHeader = request.getHeader("Authorization");
-
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String jwt = authHeader.substring(7);
                 String username = jwtUtil.extractUsername(jwt);
                 String role = jwtUtil.extractRole(jwt);
 
-                if (username != null && jwtUtil.validateToken(jwt, username) &&
-                        SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (username != null
+                        && jwtUtil.validateToken(jwt, username)
+                        && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    Collection<? extends GrantedAuthority> authorities = Collections
-                            .singletonList(new SimpleGrantedAuthority(role));
+                    Collection<? extends GrantedAuthority> authorities
+                            = Collections.singletonList(new SimpleGrantedAuthority(role));
 
-                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, null,
-                            authorities);
+                    UsernamePasswordAuthenticationToken authentication
+                            = new UsernamePasswordAuthenticationToken(username, null, authorities);
 
-                    SecurityContextHolder.getContext().setAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
+
         } catch (UnAutherizedException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
