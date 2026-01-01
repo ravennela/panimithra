@@ -33,7 +33,6 @@ public class BookingController {
 
     @PostMapping("/create")
     @PreAuthorize("hasAuthority('ADMIN') or hasAuthority('EMPLOYEE') or hasAuthority('USER')")
-
     public ResponseEntity<?> creatingBooking(@RequestBody CreateBookingRequest request) {
         try {
             CreateSubcategoryResponse response = bookingService.createBooking(request);

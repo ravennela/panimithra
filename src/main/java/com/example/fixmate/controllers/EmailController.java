@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.example.fixmate.dtos.custom.ApiErrorDto;
 import com.example.fixmate.dtos.request.RequestOtp;
 import com.example.fixmate.dtos.request.VerifyOtpRequest;
@@ -22,6 +23,9 @@ import jakarta.servlet.http.HttpServletResponse;
 @RestController
 @RequestMapping("/auth/email")
 public class EmailController {
+
+    private static final Logger log
+            = LoggerFactory.getLogger(OtpService.class);
 
     @Autowired
     private EmailService emailService;
@@ -46,20 +50,32 @@ public class EmailController {
         try {
             OtpResponse response = otpService.generateOtp(requestBody);
             return ResponseEntity.ok(response);
+
         } catch (IllegalArgumentException exception) {
+
+            log.error("OTP validation failed for email={}",
+                    requestBody.getEmail(), exception);
+
             ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(response);
+
         } catch (Exception exception) {
+
+            log.error("OTP generation failed (SMTP/unknown) for email={}",
+                    requestBody.getEmail(), exception);
+
             ApiErrorDto response = new ApiErrorDto();
-            System.out.println(exception.getStackTrace());
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.setError(exception.getMessage());
-            System.out.println(exception.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setError("Failed to send OTP email");
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(response);
         }
     }
 

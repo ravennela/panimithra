@@ -90,7 +90,6 @@ public class UserController {
     }
 
     @GetMapping("/getAllUsers")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> fetchAllUsers(@RequestParam(required = false) String name,
             @RequestParam(required = false) String status, String[] sort,
             @RequestParam(defaultValue = "10", required = false) int size,
@@ -157,7 +156,6 @@ public class UserController {
     }
 
     @GetMapping("/user-profile")
-    @PreAuthorize("hasAuthority('USER') or hasAuthority('EMPLOYEE')")
     public ResponseEntity<?> userProfile(@RequestParam String userId) {
         try {
             User user = service.userprofile(userId);
@@ -181,7 +179,6 @@ public class UserController {
     }
 
     @DeleteMapping("/delete-user")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> deleteUser(@RequestParam String userId) {
         try {
             CreateSubcategoryResponse response = service.deleteUser(userId);
@@ -204,7 +201,6 @@ public class UserController {
     }
 
     @PutMapping("/change-user-status")
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> changeUserStatus(@RequestParam String userId, @RequestParam String status) {
         try {
             CreateSubcategoryResponse response = service.changeUserStatus(userId, status);
@@ -291,4 +287,5 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
+
 }
