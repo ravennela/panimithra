@@ -31,10 +31,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(request -> {
+            var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+            corsConfiguration.setAllowedOrigins(java.util.List.of("*"));
+            corsConfiguration
+                    .setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+            return corsConfiguration;
+        }))
                 .authorizeHttpRequests(auth -> auth
+                .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/payments/pay").permitAll()
-                .requestMatchers("/payments/checkout").permitAll()
+                .requestMatchers(
+                        "/payments/checkout",
+                        "/payments/checkout/**",
+                        "/payments/pay",
+                        "/payments/pay/**"
+                ).permitAll()
                 .requestMatchers("/payments/**").authenticated()
                 .anyRequest().authenticated())
                 .csrf(csrf -> csrf.disable())

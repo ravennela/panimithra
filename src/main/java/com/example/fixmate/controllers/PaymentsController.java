@@ -45,6 +45,7 @@ public class PaymentsController {
     @PostMapping("/checkout")
     public ResponseEntity<?> createCheckout(@RequestParam String userid, @RequestParam String planId) {
         try {
+            System.out.println("Reaching Server no issues");
             CheckoutResponse response = paymentsService.createCheckout(userid, planId);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException exception) {

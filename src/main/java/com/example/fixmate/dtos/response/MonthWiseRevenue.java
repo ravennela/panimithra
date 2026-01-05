@@ -6,9 +6,22 @@ public class MonthWiseRevenue {
     private int month;
     private double totalAmount;
 
-    public MonthWiseRevenue(int month, double totalAmount) {
-        this.month = month;
-        this.totalAmount = totalAmount;
+    public MonthWiseRevenue(Integer month, Double totalAmount) {
+        this.month = (month != null) ? month : 0;
+        this.totalAmount = (totalAmount != null) ? totalAmount : 0.0;
+        this.amount = this.totalAmount;
+        this.monthName = getMonthName(this.month);
+    }
+
+    private String getMonthName(int month) {
+        String[] months = {
+                "", "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+        };
+        return (month >= 1 && month <= 12) ? months[month] : "Unknown";
+    }
+
+    public MonthWiseRevenue() {
     }
 
     public int getMonth() {

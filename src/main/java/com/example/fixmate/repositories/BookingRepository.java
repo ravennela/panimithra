@@ -35,7 +35,7 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
                         "WHERE MONTH(s.createdAt) = :month " +
                         "AND YEAR(s.createdAt) = :year " +
                         "AND s.bookingStatus = :status")
-                        
+
         Double revenueByTheCurrentMonth(@Param("month") int month,
                         @Param("year") int year,
                         @Param("status") String status);
@@ -69,10 +69,9 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
         long employeeInprogessBookingCount(@Param("userId") String userId, @Param("status") String status);
 
         @Query("SELECT SUM(b.totalAmount) FROM Bookings b " +
-                        "JOIN b.employee e " +
-                        "WHERE e.id = :userId " +
-                        "AND MONTH(b.createdAt) = :month " +
-                        "AND YEAR(b.createdAt) = :year " +
+                        "WHERE b.employee.id = :userId " +
+                        "AND MONTH(b.bookingDate) = :month " +
+                        "AND YEAR(b.bookingDate) = :year " +
                         "AND b.bookingStatus = 'COMPLETED'")
         Double employeeCurrentMonthRevenue(
                         @Param("userId") String userId,
@@ -80,14 +79,13 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
                         @Param("year") int year);
 
         @Query("SELECT new com.example.fixmate.dtos.response.MonthWiseRevenue(" +
-                        "MONTH(b.createdAt), SUM(b.totalAmount)) " +
+                        "MONTH(b.bookingDate), SUM(b.totalAmount)) " +
                         "FROM Bookings b " +
-                        "JOIN b.employee e " +
-                        "WHERE e.id = :userId " +
+                        "WHERE b.employee.id = :userId " +
                         "AND b.bookingStatus = 'COMPLETED' " +
-                        "AND YEAR(b.createdAt) = :year " +
-                        "GROUP BY MONTH(b.createdAt) " +
-                        "ORDER BY MONTH(b.createdAt)")
+                        "AND YEAR(b.bookingDate) = :year " +
+                        "GROUP BY MONTH(b.bookingDate) " +
+                        "ORDER BY MONTH(b.bookingDate)")
         List<MonthWiseRevenue> getEmployeeMonthlyRevenue(
                         @Param("userId") String userId,
                         @Param("year") int year);

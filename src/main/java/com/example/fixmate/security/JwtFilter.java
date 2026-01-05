@@ -33,11 +33,14 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getRequestURI(); // ✅ IMPORTANT
+        String method = request.getMethod();
 
-        // ✅ Skip JWT for public endpoints
-        if (path.startsWith("/auth/")
+        // ✅ Skip JWT for OPTIONS and public endpoints
+        if ("OPTIONS".equalsIgnoreCase(method)
+                || path.contains("/auth/")
                 || path.startsWith("/health")
-                || path.startsWith("/public/")) {
+                || path.contains("/public/")
+                || path.contains("/payments/")) {
 
             filterChain.doFilter(request, response);
             return;
@@ -56,12 +59,11 @@ public class JwtFilter extends OncePerRequestFilter {
                         && jwtUtil.validateToken(jwt, username)
                         && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    Collection<? extends GrantedAuthority> authorities
-                            = Collections.singletonList(new SimpleGrantedAuthority(role));
+                    Collection<? extends GrantedAuthority> authorities = Collections
+                            .singletonList(new SimpleGrantedAuthority(role));
 
-                    UsernamePasswordAuthenticationToken authentication
-                            = new UsernamePasswordAuthenticationToken(
-                                    username, null, authorities);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            username, null, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }

@@ -97,7 +97,7 @@ public class UserService {
             Subscription subscription = new Subscription();
             subscription.setStatus("ACTIVE");
             subscription.setStartDate(LocalDate.now());
-            subscription.setEndDate(LocalDate.now().plusDays(365));
+            subscription.setEndDate(LocalDate.now().plusDays(plan.getDurationInDays()));
             subscription.setEmployee(user);
             subscription.setSubscriptionPlan(plan);
             subscriptionRepository.save(subscription);
