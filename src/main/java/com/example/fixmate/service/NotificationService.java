@@ -13,6 +13,7 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 
 @Service
+@Profile("prod")
 public class NotificationService {
 
     @Autowired
@@ -20,8 +21,7 @@ public class NotificationService {
 
     @Autowired(required = false)
     FirebaseApp firebaseApp;
-    @Profile("prod")
-
+   
     public String sendNotification(String token, String title, String body)
             throws FirebaseMessagingException {
 
