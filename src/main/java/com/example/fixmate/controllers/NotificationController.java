@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/auth")
-Profile("prod")
+@Profile("prod")
 public class NotificationController {
     @Autowired
     NotificationService notificationService;
