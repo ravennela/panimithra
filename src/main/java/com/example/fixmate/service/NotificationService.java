@@ -2,6 +2,7 @@ package com.example.fixmate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile; // ✅ THIS WAS MISSING
 
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.entities.User;
@@ -21,12 +22,12 @@ public class NotificationService {
 
     @Autowired(required = false)
     FirebaseApp firebaseApp;
-   
+
     public String sendNotification(String token, String title, String body)
             throws FirebaseMessagingException {
 
-        if (FirebaseApp.getApps().isEmpty()) {
-            throw new IllegalStateException("FirebaseApp is not initialized");
+        if (firebaseApp == null) {
+            throw new IllegalStateException("Firebase is disabled in this environment");
         }
 
         Notification notification = Notification.builder()
@@ -48,13 +49,13 @@ public class NotificationService {
         if (user == null) {
             throw new RuntimeException("No User Found");
         }
-        System.out.println("Token Saved" + token);
+
         user.setDeviceToken(token);
         userRepository.save(user);
+
         CreateSubcategoryResponse response = new CreateSubcategoryResponse();
         response.setId(userId);
         response.setMessage("Token Saved Successfully");
         return response;
     }
-
 }
