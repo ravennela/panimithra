@@ -12,22 +12,18 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
-
 @Service
-@Profile("prod")
 public class NotificationService {
 
     @Autowired
     UserRepository userRepository;
 
-    @Autowired(required = false)
-    FirebaseApp firebaseApp;
-
     public String sendNotification(String token, String title, String body)
             throws FirebaseMessagingException {
 
-        if (firebaseApp == null) {
-            throw new IllegalStateException("Firebase is disabled in this environment");
+        // Firebase not configured → skip safely
+        if (FirebaseApp.getApps().isEmpty()) {
+            return "Firebase disabled";
         }
 
         Notification notification = Notification.builder()
