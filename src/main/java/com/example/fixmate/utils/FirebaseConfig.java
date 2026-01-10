@@ -9,6 +9,7 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 
 @Configuration
+@Profile("prod")
 public class FirebaseConfig {
 
     @PostConstruct

@@ -18,6 +18,7 @@ import com.example.fixmate.repositories.UserRepository;
 import com.google.firebase.messaging.FirebaseMessagingException;
 
 @Service
+@Profile("prod")
 public class BookingService {
 
     @Autowired

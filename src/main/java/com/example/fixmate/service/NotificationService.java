@@ -18,8 +18,9 @@ public class NotificationService {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
+    @Autowired(required = false)
     FirebaseApp firebaseApp;
+    @Profile("prod")
 
     public String sendNotification(String token, String title, String body)
             throws FirebaseMessagingException {
