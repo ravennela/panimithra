@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
 
 import com.example.fixmate.dtos.request.CreateBookingRequest;
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
@@ -18,7 +19,6 @@ import com.example.fixmate.repositories.UserRepository;
 import com.google.firebase.messaging.FirebaseMessagingException;
 
 @Service
-@Profile("prod")
 public class BookingService {
 
     @Autowired

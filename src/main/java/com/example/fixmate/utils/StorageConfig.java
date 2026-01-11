@@ -1,18 +1,18 @@
-// package com.example.fixmate.utils;
+package com.example.fixmate.utils;
 
-// import java.io.IOException;
+import java.io.IOException;
 
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-// import com.google.cloud.storage.Storage;
-// import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 
-// @Configuration
-// public class StorageConfig {
+@Configuration
+public class StorageConfig {
 
-// @Bean
-// public Storage storage() throws IOException {
-// return StorageOptions.getDefaultInstance().getService();
-// }
-// }
+    @Bean
+    public Storage storage() throws IOException {
+        return StorageOptions.getDefaultInstance().getService();
+    }
+}

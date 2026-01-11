@@ -2,7 +2,6 @@ package com.example.fixmate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.context.annotation.Profile; // ✅ THIS WAS MISSING
 
 import com.example.fixmate.dtos.response.CreateSubcategoryResponse;
 import com.example.fixmate.entities.User;
